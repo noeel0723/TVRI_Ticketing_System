@@ -1,0 +1,20 @@
+2026-02-12 18:54:16 | user:2 | action:update_status | detail:Tiket #30 status diubah menjadi In Progress
+2026-02-12 18:54:46 | user:2 | action:resolve_ticket | detail:Tiket #30 status diubah menjadi Resolved
+2026-02-12 18:55:56 | user:2 | action:update_status | detail:Tiket #32 status diubah menjadi In Progress
+2026-02-12 19:05:07 | user:2 | action:resolve_ticket | detail:Tiket #32 status diubah menjadi Resolved
+2026-02-12 19:16:42 | user:5 | action:resolve_ticket | detail:Tiket #29 status diubah menjadi Resolved
+2026-02-12 19:17:03 | user:5 | action:update_status | detail:Tiket #24 status diubah menjadi In Progress
+2026-02-12 19:17:10 | user:5 | action:resolve_ticket | detail:Tiket #24 status diubah menjadi Resolved
+2026-02-12 19:17:32 | user:5 | action:update_status | detail:Tiket #22 status diubah menjadi In Progress
+2026-02-12 19:17:37 | user:5 | action:resolve_ticket | detail:Tiket #22 status diubah menjadi Resolved
+2026-02-12 19:22:15 | user:4 | action:update_status | detail:Tiket #37 status diubah menjadi In Progress
+2026-02-12 19:22:20 | user:4 | action:resolve_ticket | detail:Tiket #37 status diubah menjadi Resolved
+2026-02-12 19:22:35 | user:5 | action:resolve_ticket | detail:Tiket #38 status diubah menjadi Resolved
+2026-02-12 19:26:46 | user:4 | action:resolve_ticket | detail:Tiket #35 status diubah menjadi Resolved
+2026-02-12 19:43:20 | user:4 | action:update_status | detail:Tiket #36 status diubah menjadi In Progress
+2026-02-12 19:43:27 | user:4 | action:resolve_ticket | detail:Tiket #36 status diubah menjadi Resolved
+2026-02-12 19:43:37 | user:4 | action:update_status | detail:Tiket #34 status diubah menjadi In Progress
+2026-02-12 19:43:43 | user:4 | action:resolve_ticket | detail:Tiket #34 status diubah menjadi Resolved
+2026-02-12 19:45:47 | user:7 | action:resolve_ticket | detail:Tiket #31 status diubah menjadi Resolved
+2026-02-12 19:46:01 | user:7 | action:update_status | detail:Tiket #33 status diubah menjadi In Progress
+2026-02-12 19:46:05 | user:7 | action:resolve_ticket | detail:Tiket #33 status diubah menjadi Resolved

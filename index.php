@@ -214,9 +214,9 @@ $csrf = csrf_token();
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="reg_email"><i class="bi bi-envelope"></i> Email</label>
+                    <label for="reg_email"><i class="bi bi-envelope"></i> Email <small style="opacity:.6;font-weight:400">(opsional)</small></label>
                     <div class="input-wrapper">
-                        <input type="email" id="reg_email" name="email" placeholder="contoh@email.com" required maxlength="100">
+                        <input type="email" id="reg_email" name="email" placeholder="contoh@email.com (opsional)" maxlength="100">
                     </div>
                     <div class="field-hint" id="hintEmail"></div>
                 </div>
@@ -365,7 +365,7 @@ $csrf = csrf_token();
 
         if (nama.length < 3) { Swal.fire({icon:'warning',title:'Validasi',text:'Nama minimal 3 karakter.',confirmButtonColor:'#10367D'}); return; }
         if (!/^[a-zA-Z0-9_]{4,50}$/.test(username)) { Swal.fire({icon:'warning',title:'Validasi',text:'Username 4-50 karakter, hanya huruf/angka/underscore.',confirmButtonColor:'#10367D'}); return; }
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { Swal.fire({icon:'warning',title:'Validasi',text:'Format email tidak valid.',confirmButtonColor:'#10367D'}); return; }
+        if (email !== '' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { Swal.fire({icon:'warning',title:'Validasi',text:'Format email tidak valid.',confirmButtonColor:'#10367D'}); return; }
         if (password.length < 8) { Swal.fire({icon:'warning',title:'Validasi',text:'Password minimal 8 karakter.',confirmButtonColor:'#10367D'}); return; }
         if (password !== confirm) { Swal.fire({icon:'warning',title:'Validasi',text:'Password dan konfirmasi tidak cocok.',confirmButtonColor:'#10367D'}); return; }
 

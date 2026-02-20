@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once '../config/auth.php';
 checkRole('admin');
 require_once '../config/koneksi.php';
@@ -186,7 +186,7 @@ while($div = mysqli_fetch_assoc($divisions_result)) { $divisions[] = $div; }
         @media(max-width:1100px){.content-grid{grid-template-columns:1fr}}
         @media(max-width:768px){html,body{overflow-x:hidden;width:100%}
             /* .sidebar{width:100%;position:relative;min-height:auto} */ /* Removed - using hamburger menu */
-            .main-content{margin-left:0;padding:20px 16px}
+            .main-content{margin-left:0;padding:56px 16px 20px}
             .table-wrapper{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -16px;padding:0 16px}
             .user-table{min-width:800px}
             .user-table th,.user-table td{font-size:.8rem;padding:10px 8px}
@@ -205,25 +205,19 @@ while($div = mysqli_fetch_assoc($divisions_result)) { $divisions[] = $div; }
             .action-btn{font-size:.75rem;padding:4px 8px}
         }
 /* Mobile Hamburger Menu */
-.hamburger-menu{display:none;position:fixed;top:20px;left:20px;z-index:1100;background:white;border:none;width:45px;height:45px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.1);cursor:pointer;padding:10px;flex-direction:column;justify-content:space-around;transition:all 0.3s ease}
-.hamburger-menu span{display:block;width:100%;height:3px;background:#6366f1;border-radius:2px;transition:all 0.3s ease}
-.hamburger-menu.active span:nth-child(1){transform:rotate(45deg) translate(8px, 8px)}
-.hamburger-menu.active span:nth-child(2){opacity:0}
-.hamburger-menu.active span:nth-child(3){transform:rotate(-45deg) translate(7px, -7px)}
-.sidebar-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:998;opacity:0;transition:opacity 0.3s ease}
-.sidebar-overlay.active{display:block;opacity:1}
-@media(max-width:768px){.hamburger-menu{display:flex}.sidebar{position:fixed!important;top:0;left:-100%!important;width:260px!important;height:100vh;z-index:999;transition:left 0.3s ease;overflow-y:auto}.sidebar.active{left:0!important}}
+        .hamburger-menu{display:none;position:fixed;top:20px;left:20px;z-index:1100;background:#fff;border:none;width:44px;height:44px;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,.1);cursor:pointer;padding:10px;flex-direction:column;justify-content:space-around;transition:all .3s}
+        .hamburger-menu span{display:block;width:100%;height:3px;background:#10367D;border-radius:2px;transition:all .3s}
+        .hamburger-menu.active span:nth-child(1){transform:rotate(45deg) translate(8px,8px)}
+        .hamburger-menu.active span:nth-child(2){opacity:0}
+        .hamburger-menu.active span:nth-child(3){transform:rotate(-45deg) translate(7px,-7px)}
+        .sidebar-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.45);z-index:998;opacity:0;transition:opacity .3s}
+        .sidebar-overlay.active{display:block;opacity:1}
+        @media(max-width:768px){.hamburger-menu{display:flex}.sidebar{position:fixed!important;top:0;left:-100%!important;width:260px!important;height:100vh;z-index:999;transition:left .3s;overflow-y:auto}.sidebar.active{left:0!important}}
     </style>
 </head>
 <body>
-    <!-- Mobile Hamburger Menu -->
-    <button class="hamburger-menu" id="hamburgerBtn">
-        <span></span>
-        <span></span>
-        <span></span>
-    </button>
+    <button class="hamburger-menu" id="hamburgerBtn"><span></span><span></span><span></span></button>
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
-    <!-- Sidebar -->
     <nav class="sidebar">
         <div class="sidebar-brand" style="flex-direction: column; gap: 8px; align-items: center;">
             <img src="../assets/Logo_TVRI.svg.png" alt="TVRI Logo" style="height: 50px;">
@@ -746,39 +740,7 @@ while($div = mysqli_fetch_assoc($divisions_result)) { $divisions[] = $div; }
     <?php endif; ?>
 
     </script>
-<script>
-// Mobile Sidebar Toggle
-(function(){
-    const hamburgerBtn = document.getElementById('hamburgerBtn');
-    const sidebar = document.querySelector('.sidebar');
-    const sidebarOverlay = document.getElementById('sidebarOverlay');
-    if(!hamburgerBtn || !sidebar || !sidebarOverlay) return;
-
-    hamburgerBtn.addEventListener('click', function(){
-        this.classList.toggle('active');
-        sidebar.classList.toggle('active');
-        sidebarOverlay.classList.toggle('active');
-        document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
-    });
-
-    sidebarOverlay.addEventListener('click', function(){
-        hamburgerBtn.classList.remove('active');
-        sidebar.classList.remove('active');
-        this.classList.remove('active');
-        document.body.style.overflow = '';
-    });
-
-    document.querySelectorAll('.sidebar .nav-link, .sidebar a').forEach(function(link){
-        link.addEventListener('click', function(){
-            if(window.innerWidth <= 768){
-                hamburgerBtn.classList.remove('active');
-                sidebar.classList.remove('active');
-                sidebarOverlay.classList.remove('active');
-                document.body.style.overflow = '';
-            }
-        });
-    });
-})();</script>
+<script>(function(){const h=document.getElementById('hamburgerBtn');const s=document.querySelector('.sidebar');const o=document.getElementById('sidebarOverlay');if(!h||!s||!o)return;h.addEventListener('click',function(){this.classList.toggle('active');s.classList.toggle('active');o.classList.toggle('active');document.body.style.overflow=s.classList.contains('active')?'hidden':'';});o.addEventListener('click',function(){h.classList.remove('active');s.classList.remove('active');this.classList.remove('active');document.body.style.overflow='';});document.querySelectorAll('.sidebar .nav-link, .sidebar a').forEach(function(l){l.addEventListener('click',function(){if(window.innerWidth<=768){h.classList.remove('active');s.classList.remove('active');o.classList.remove('active');document.body.style.overflow='';}});});})();</script>
 
 <script>
     // Hidden delete form for single deletions

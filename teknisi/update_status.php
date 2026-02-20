@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once '../config/auth.php';
 require_once '../config/logger.php';
 require_once '../config/email_helper.php';
@@ -15,9 +15,9 @@ $_foto_d = mysqli_fetch_assoc($_foto_r);
 mysqli_stmt_close($_foto_q);
 $_user_photo = !empty($_foto_d['foto']) ? '../uploads/profile_photos/' . $_foto_d['foto'] : '';
 
-$assigned_query = "SELECT COUNT(*) as total FROM tickets WHERE assigned_division_id = ? AND status = 'Assigned'";
+$assigned_query = "SELECT COUNT(*) as total FROM tickets WHERE handled_by = ? AND status = 'Assigned'";
 $stmt_count = mysqli_prepare($conn, $assigned_query);
-mysqli_stmt_bind_param($stmt_count, "i", $user['division_id']);
+mysqli_stmt_bind_param($stmt_count, "i", $user['id']);
 mysqli_stmt_execute($stmt_count);
 $count_result = mysqli_stmt_get_result($stmt_count);
 $assigned_tickets = mysqli_fetch_assoc($count_result)['total'];
@@ -35,7 +35,7 @@ $query_ticket = "SELECT t.*, u.nama as pelapor, u.email as pelapor_email, d.nama
                  FROM tickets t
                  LEFT JOIN users u ON t.user_id = u.id
                  LEFT JOIN divisions d ON t.assigned_division_id = d.id
-                 WHERE t.id = $ticket_id AND t.assigned_division_id = $division_id";
+                 WHERE t.id = $ticket_id AND t.assigned_division_id = $division_id AND t.handled_by = {$user['id']}";
 $result_ticket = mysqli_query($conn, $query_ticket);
 
 if (mysqli_num_rows($result_ticket) == 0) {

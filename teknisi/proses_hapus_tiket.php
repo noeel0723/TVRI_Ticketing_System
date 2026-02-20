@@ -1,6 +1,6 @@
 <?php
 require_once '../config/auth.php';
-checkRole('admin');
+checkRole('teknisi');
 require_once '../config/koneksi.php';
 require_once '../config/logger.php';
 
@@ -13,8 +13,8 @@ if (!isset($_GET['id'])) {
 
 $ticket_id = intval($_GET['id']);
 
-// Cek status tiket, hanya boleh hapus yang Resolved
-$check_stmt = mysqli_prepare($conn, 'SELECT id, status, judul FROM tickets WHERE id = ?');
+// Verifikasi tiket: harus Resolved DAN ditugaskan ke teknisi ini
+$check_stmt = mysqli_prepare($conn, 'SELECT id, status, judul, handled_by FROM tickets WHERE id = ?');
 if (!$check_stmt) {
     header('Location: dashboard.php?error=db');
     exit();
@@ -32,28 +32,35 @@ if (!$check_result || mysqli_num_rows($check_result) == 0) {
 $ticket = mysqli_fetch_assoc($check_result);
 mysqli_stmt_close($check_stmt);
 
-if ($ticket['status'] != 'Resolved') {
+// Pastikan tiket ini memang ditugaskan ke teknisi yg sedang login
+if ((int)$ticket['handled_by'] !== (int)$user['id']) {
+    header('Location: dashboard.php?error=access_denied');
+    exit();
+}
+
+// Hanya tiket Resolved yang boleh dihapus
+if ($ticket['status'] !== 'Resolved') {
     header('Location: dashboard.php?error=not_resolved');
     exit();
 }
 
 // Catat log SEBELUM menghapus tiket agar history tetap tersimpan
 // ticket_id pada log akan di-SET NULL otomatis oleh FK setelah tiket dihapus
-logTicketActivity($conn, $ticket_id, $user['id'], 'ticket_deleted', $ticket['status'], 'Deleted', 'Tiket #' . $ticket_id . ' "' . $ticket['judul'] . '" dihapus oleh admin');
+logTicketActivity($conn, $ticket_id, $user['id'], 'ticket_deleted', $ticket['status'], 'Deleted', 'Tiket #' . $ticket_id . ' "' . $ticket['judul'] . '" dihapus oleh teknisi');
 
 // Hapus tiket (ticket_logs TIDAK dihapus — FK ON DELETE SET NULL menjaga history)
-$delete_ticket_stmt = mysqli_prepare($conn, 'DELETE FROM tickets WHERE id = ?');
-if (!$delete_ticket_stmt) {
+$delete_stmt = mysqli_prepare($conn, 'DELETE FROM tickets WHERE id = ?');
+if (!$delete_stmt) {
     header('Location: dashboard.php?error=db');
     exit();
 }
-mysqli_stmt_bind_param($delete_ticket_stmt, 'i', $ticket_id);
-if (mysqli_stmt_execute($delete_ticket_stmt)) {
-    mysqli_stmt_close($delete_ticket_stmt);
-    header('Location: dashboard.php?success=delete');
+mysqli_stmt_bind_param($delete_stmt, 'i', $ticket_id);
+if (mysqli_stmt_execute($delete_stmt)) {
+    mysqli_stmt_close($delete_stmt);
+    header('Location: dashboard.php?success=deleted');
 } else {
-    mysqli_stmt_close($delete_ticket_stmt);
-    header('Location: dashboard.php?error=db');
+    mysqli_stmt_close($delete_stmt);
+    header('Location: dashboard.php?error=delete_failed');
 }
 exit();
 ?>

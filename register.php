@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * Registration Handler
  * - POST: Register new user (role='user' only)
@@ -98,13 +98,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
         $errors[] = 'Username harus 4-50 karakter, hanya huruf, angka, dan underscore.';
     }
     
-    // Email: required, valid format
-    if ($email === '') {
-        $errors[] = 'Email wajib diisi.';
-    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $errors[] = 'Format email tidak valid.';
-    } elseif (mb_strlen($email) > 100) {
-        $errors[] = 'Email maksimal 100 karakter.';
+    // Email: optional - validate format only if provided
+    if ($email !== '') {
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $errors[] = 'Format email tidak valid.';
+        } elseif (mb_strlen($email) > 100) {
+            $errors[] = 'Email maksimal 100 karakter.';
+        }
     }
     
     // Password: required, min 8 chars, max 72 (bcrypt limit)

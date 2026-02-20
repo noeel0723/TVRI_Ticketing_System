@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * API Endpoint: Check for new/updated tickets (AJAX Polling)
  * Returns JSON with ticket counts and latest ticket info per role.
@@ -64,13 +64,13 @@ if ($role === 'admin') {
         ];
     }
 
-} elseif ($role === 'teknisi' && $division_id > 0) {
+} elseif ($role === 'teknisi') {
     $q = mysqli_query($conn, "SELECT 
         COUNT(*) as total,
         SUM(status='Assigned') as assigned_count,
         SUM(status='In Progress') as progress_count,
         SUM(status='Resolved') as resolved_count
-        FROM tickets WHERE assigned_division_id = $division_id");
+        FROM tickets WHERE handled_by = $user_id");
     $c = mysqli_fetch_assoc($q);
     $response['counts'] = [
         'total'    => (int)$c['total'],
@@ -81,7 +81,7 @@ if ($role === 'admin') {
 
     $q2 = mysqli_query($conn, "SELECT t.id, t.judul, t.status, t.priority, t.updated_at, u.nama as pelapor
         FROM tickets t LEFT JOIN users u ON t.user_id = u.id
-        WHERE t.assigned_division_id = $division_id AND t.updated_at > '$last_check'
+        WHERE t.handled_by = $user_id AND t.updated_at > '$last_check'
         ORDER BY t.updated_at DESC LIMIT 5");
     while ($row = mysqli_fetch_assoc($q2)) {
         $response['new_items'][] = [

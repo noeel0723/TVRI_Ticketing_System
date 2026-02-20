@@ -1,9 +1,12 @@
-<?php
+﻿<?php
 require_once '../config/auth.php';
 checkRole('admin');
 require_once '../config/koneksi.php';
 
 $user = getUserInfo();
+
+// Auto-purge: hapus logs yang lebih dari 30 hari secara otomatis
+mysqli_query($conn, "DELETE FROM ticket_logs WHERE created_at < DATE_SUB(NOW(), INTERVAL 30 DAY)");
 
 // Fetch user photo
 $_foto_q = mysqli_prepare($conn, "SELECT foto FROM users WHERE id = ?");
@@ -67,13 +70,14 @@ $cnt_all = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as c FROM tic
 $cnt_create = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as c FROM ticket_logs tl LEFT JOIN tickets t ON tl.ticket_id=t.id LEFT JOIN users u ON tl.user_id=u.id " . (!empty($base_where) ? 'WHERE '.implode(' AND ',$base_where).' AND ' : 'WHERE ') . "tl.action='create'"))['c'];
 $cnt_assign = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as c FROM ticket_logs tl LEFT JOIN tickets t ON tl.ticket_id=t.id LEFT JOIN users u ON tl.user_id=u.id " . (!empty($base_where) ? 'WHERE '.implode(' AND ',$base_where).' AND ' : 'WHERE ') . "tl.action='assign'"))['c'];
 $cnt_status = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as c FROM ticket_logs tl LEFT JOIN tickets t ON tl.ticket_id=t.id LEFT JOIN users u ON tl.user_id=u.id " . (!empty($base_where) ? 'WHERE '.implode(' AND ',$base_where).' AND ' : 'WHERE ') . "tl.action='status_update'"))['c'];
+$cnt_deleted = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as c FROM ticket_logs tl LEFT JOIN tickets t ON tl.ticket_id=t.id LEFT JOIN users u ON tl.user_id=u.id " . (!empty($base_where) ? 'WHERE '.implode(' AND ',$base_where).' AND ' : 'WHERE ') . "tl.action='ticket_deleted'"))['c'];
 
 // Main query
 $count_query = "SELECT COUNT(*) as total FROM ticket_logs tl LEFT JOIN tickets t ON tl.ticket_id=t.id LEFT JOIN users u ON tl.user_id=u.id $where_sql";
 $total_records = mysqli_fetch_assoc(mysqli_query($conn, $count_query))['total'];
 $total_pages = max(1, ceil($total_records / $limit));
 
-$query = "SELECT tl.*, u.nama as user_nama, u.role as user_role, t.judul as ticket_judul, t.id as ticket_id
+$query = "SELECT tl.*, u.nama as user_nama, u.role as user_role, t.judul as ticket_judul_live, t.id as ticket_id_live
           FROM ticket_logs tl
           LEFT JOIN users u ON tl.user_id = u.id
           LEFT JOIN tickets t ON tl.ticket_id = t.id
@@ -129,7 +133,7 @@ function qs($overrides = []) {
         .btn-logout{width:100%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);color:#fff;padding:8px;border-radius:8px;font-size:.82rem;font-weight:500;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .2s}
         .btn-logout:hover{background:rgba(255,255,255,.2);color:#fff}
         /* Main */
-        .main-content{margin-left:230px;padding:32px 40px;min-height:100vh}
+        .main-content{margin-left:230px;padding:28px 32px;min-height:100vh}
         /* Page title row */
         .page-title-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px}
         .page-title{font-size:1.5rem;font-weight:700;color:#1a1a2e;margin:0}
@@ -170,6 +174,7 @@ function qs($overrides = []) {
         .dot-create{background:#22c55e}
         .dot-assign{background:#3b82f6}
         .dot-status{background:#f59e0b}
+        .dot-deleted{background:#dc2626}
         .type-label{font-weight:600;color:#1a1a2e;font-size:.84rem}
         /* Ticket cell */
         .ticket-cell{display:flex;flex-direction:column;gap:2px}
@@ -215,8 +220,8 @@ function qs($overrides = []) {
         @media(max-width:1100px){.search-box{width:100%}}
         @media(max-width:768px){
             html,body{overflow-x:hidden;width:100%}
-            .sidebar{width:100%;position:relative;min-height:auto}
-            .main-content{margin-left:0;padding:20px 16px;width:100%;max-width:100%;overflow-x:hidden}
+
+            .main-content{margin-left:0;padding:56px 16px 20px;width:100%;max-width:100%;overflow-x:hidden}
             .filter-bar{flex-direction:column;align-items:stretch;gap:8px}
             .search-box{font-size:.85rem}
             .tab-pills{overflow-x:scroll;-webkit-overflow-scrolling:touch;width:100%;scrollbar-width:none}
@@ -248,25 +253,19 @@ function qs($overrides = []) {
             .table-card{overflow-x:auto}
         }
 /* Mobile Hamburger Menu */
-.hamburger-menu{display:none;position:fixed;top:20px;left:20px;z-index:1100;background:white;border:none;width:45px;height:45px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.1);cursor:pointer;padding:10px;flex-direction:column;justify-content:space-around;transition:all 0.3s ease}
-.hamburger-menu span{display:block;width:100%;height:3px;background:#6366f1;border-radius:2px;transition:all 0.3s ease}
-.hamburger-menu.active span:nth-child(1){transform:rotate(45deg) translate(8px, 8px)}
-.hamburger-menu.active span:nth-child(2){opacity:0}
-.hamburger-menu.active span:nth-child(3){transform:rotate(-45deg) translate(7px, -7px)}
-.sidebar-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:998;opacity:0;transition:opacity 0.3s ease}
-.sidebar-overlay.active{display:block;opacity:1}
-@media(max-width:768px){.hamburger-menu{display:flex}.sidebar{position:fixed!important;top:0;left:-100%!important;width:260px!important;height:100vh;z-index:999;transition:left 0.3s ease;overflow-y:auto}.sidebar.active{left:0!important}}
+        .hamburger-menu{display:none;position:fixed;top:20px;left:20px;z-index:1100;background:#fff;border:none;width:44px;height:44px;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,.1);cursor:pointer;padding:10px;flex-direction:column;justify-content:space-around;transition:all .3s}
+        .hamburger-menu span{display:block;width:100%;height:3px;background:#10367D;border-radius:2px;transition:all .3s}
+        .hamburger-menu.active span:nth-child(1){transform:rotate(45deg) translate(8px,8px)}
+        .hamburger-menu.active span:nth-child(2){opacity:0}
+        .hamburger-menu.active span:nth-child(3){transform:rotate(-45deg) translate(7px,-7px)}
+        .sidebar-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.45);z-index:998;opacity:0;transition:opacity .3s}
+        .sidebar-overlay.active{display:block;opacity:1}
+        @media(max-width:768px){.hamburger-menu{display:flex}.sidebar{position:fixed!important;top:0;left:-100%!important;width:260px!important;height:100vh;z-index:999;transition:left .3s;overflow-y:auto}.sidebar.active{left:0!important}}
     </style>
 </head>
 <body>
-    <!-- Mobile Hamburger Menu -->
-    <button class="hamburger-menu" id="hamburgerBtn">
-        <span></span>
-        <span></span>
-        <span></span>
-    </button>
+    <button class="hamburger-menu" id="hamburgerBtn"><span></span><span></span><span></span></button>
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
-<!-- Sidebar -->
     <nav class="sidebar">
         <div class="sidebar-brand" style="flex-direction: column; gap: 8px; align-items: center;">
             <img src="../assets/Logo_TVRI.svg.png" alt="TVRI Logo" style="height: 50px;">
@@ -276,7 +275,8 @@ function qs($overrides = []) {
             <a class="nav-link position-relative" href="dashboard.php"><i class="bi bi-grid-1x2"></i> Dashboard<?php if($open_count > 0): ?><span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size:0.7em"><?=$open_count?></span><?php endif; ?></a>
             <a class="nav-link" href="kelola_user.php"><i class="bi bi-people"></i> Kelola User</a>
             <a class="nav-link active" href="activity_logs.php"><i class="bi bi-clock-history"></i> Activity Logs</a>
-            <a class="nav-link" href="profile.php"><i class="bi bi-person-circle"></i> Profil Saya</a></div>
+            <a class="nav-link" href="profile.php"><i class="bi bi-person-circle"></i> Profil Saya</a>
+        </div>
         <div class="sidebar-footer">
             <div class="user-info">
                 <div class="user-avatar"><?php if($_user_photo): ?><img src="<?= htmlspecialchars($_user_photo) ?>" alt=""><?php else: ?><?= strtoupper(substr($user['nama'], 0, 1)) ?><?php endif; ?></div>
@@ -285,6 +285,7 @@ function qs($overrides = []) {
             <a href="../logout.php" class="btn-logout"><i class="bi bi-box-arrow-left"></i> Logout</a>
         </div>
     </nav>
+    <div class="toast-container" id="toastContainer"></div>
 
     <div class="main-content">
         <!-- Title row -->
@@ -324,6 +325,9 @@ function qs($overrides = []) {
                 </a>
                 <a class="tab-pill <?= $filter_action=='status_update' ? 'active' : '' ?>" href="?<?= qs(['action'=>'status_update']) ?>">
                     <i class="bi bi-arrow-repeat" style="font-size:.8rem"></i> Updated <span class="cnt"><?= $cnt_status ?></span>
+                </a>
+                <a class="tab-pill <?= $filter_action=='ticket_deleted' ? 'active' : '' ?>" href="?<?= qs(['action'=>'ticket_deleted']) ?>">
+                    <i class="bi bi-trash3" style="font-size:.8rem"></i> Deleted <span class="cnt"><?= $cnt_deleted ?></span>
                 </a>
             </div>
 
@@ -365,11 +369,13 @@ function qs($overrides = []) {
                         $type_label = 'Created';
                         if($log['action'] == 'assign') { $dot = 'dot-assign'; $type_label = 'Assigned'; }
                         elseif($log['action'] == 'status_update') { $dot = 'dot-status'; $type_label = 'Status Update'; }
+                        elseif($log['action'] == 'ticket_deleted') { $dot = 'dot-deleted'; $type_label = 'Deleted'; }
 
                         // Status style
                         $st_class = 'st-success'; $st_icon = 'bi-check-circle-fill'; $st_text = 'Success';
                         if($log['action'] == 'create') { $st_class = 'st-success'; $st_icon = 'bi-check-circle-fill'; $st_text = 'Created'; }
                         elseif($log['action'] == 'assign') { $st_class = 'st-info'; $st_icon = 'bi-dot'; $st_text = 'Assigned'; }
+                        elseif($log['action'] == 'ticket_deleted') { $st_class = 'st-failed'; $st_icon = 'bi-trash3-fill'; $st_text = 'Deleted'; }
                         elseif($log['action'] == 'status_update') {
                             $nv = $log['new_value'] ?? '';
                             if($nv == 'Resolved') { $st_class = 'st-success'; $st_icon = 'bi-check-circle-fill'; $st_text = 'Resolved'; }
@@ -393,7 +399,17 @@ function qs($overrides = []) {
                             <?php if($log['ticket_id']): ?>
                             <div class="ticket-cell">
                                 <a class="ticket-id" href="../detail.php?id=<?= $log['ticket_id'] ?>">#<?= $log['ticket_id'] ?></a>
-                                <span class="ticket-title"><?= htmlspecialchars($log['ticket_judul'] ?? '-') ?></span>
+                                <span class="ticket-title"><?= htmlspecialchars($log['ticket_judul'] ?? $log['ticket_judul_live'] ?? '-') ?></span>
+                            </div>
+                            <?php elseif($log['ticket_id_orig']): ?>
+                            <div class="ticket-cell">
+                                <span class="ticket-id" style="color:#dc2626;cursor:default"><i class="bi bi-trash3" style="font-size:.75rem"></i> #<?= $log['ticket_id_orig'] ?> <span style="font-size:.7rem;opacity:.7">(Dihapus)</span></span>
+                                <span class="ticket-title" style="max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="<?= htmlspecialchars($log['ticket_judul'] ?? '') ?>"><?= htmlspecialchars($log['ticket_judul'] ?? '-') ?></span>
+                            </div>
+                            <?php elseif($log['action'] == 'ticket_deleted'): ?>
+                            <div class="ticket-cell">
+                                <span class="ticket-id" style="color:#dc2626;cursor:default"><i class="bi bi-trash3" style="font-size:.75rem"></i> Dihapus</span>
+                                <span class="ticket-title" style="max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="<?= htmlspecialchars($log['description'] ?? '') ?>"><?= htmlspecialchars($log['description'] ?? '-') ?></span>
                             </div>
                             <?php else: ?>
                             <span style="color:#c0c4cc">-</span>
@@ -492,38 +508,6 @@ function qs($overrides = []) {
         if(e.key === 'Enter') { e.preventDefault(); this.form.submit(); }
     });
     </script>
-<script>
-// Mobile Sidebar Toggle
-(function(){
-    const hamburgerBtn = document.getElementById('hamburgerBtn');
-    const sidebar = document.querySelector('.sidebar');
-    const sidebarOverlay = document.getElementById('sidebarOverlay');
-    if(!hamburgerBtn || !sidebar || !sidebarOverlay) return;
-
-    hamburgerBtn.addEventListener('click', function(){
-        this.classList.toggle('active');
-        sidebar.classList.toggle('active');
-        sidebarOverlay.classList.toggle('active');
-        document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
-    });
-
-    sidebarOverlay.addEventListener('click', function(){
-        hamburgerBtn.classList.remove('active');
-        sidebar.classList.remove('active');
-        this.classList.remove('active');
-        document.body.style.overflow = '';
-    });
-
-    document.querySelectorAll('.sidebar .nav-link, .sidebar a').forEach(function(link){
-        link.addEventListener('click', function(){
-            if(window.innerWidth <= 768){
-                hamburgerBtn.classList.remove('active');
-                sidebar.classList.remove('active');
-                sidebarOverlay.classList.remove('active');
-                document.body.style.overflow = '';
-            }
-        });
-    });
-})();</script>
+<script>(function(){const h=document.getElementById('hamburgerBtn');const s=document.querySelector('.sidebar');const o=document.getElementById('sidebarOverlay');if(!h||!s||!o)return;h.addEventListener('click',function(){this.classList.toggle('active');s.classList.toggle('active');o.classList.toggle('active');document.body.style.overflow=s.classList.contains('active')?'hidden':'';});o.addEventListener('click',function(){h.classList.remove('active');s.classList.remove('active');this.classList.remove('active');document.body.style.overflow='';});document.querySelectorAll('.sidebar .nav-link, .sidebar a').forEach(function(l){l.addEventListener('click',function(){if(window.innerWidth<=768){h.classList.remove('active');s.classList.remove('active');o.classList.remove('active');document.body.style.overflow='';}});});})();</script>
 </body>
 </html>

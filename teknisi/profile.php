@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once '../config/auth.php';
 checkRole('teknisi');
 require_once '../config/koneksi.php';
@@ -93,7 +93,7 @@ $resolved_tickets = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as c
         html{width:100%}
         body{font-family:'Inter',sans-serif;background:#f0f2f5}
         .sidebar{background:#10367D;min-height:100vh;color:#fff;position:fixed;top:0;left:0;width:230px;z-index:100;display:flex;flex-direction:column}
-        .sidebar-brand{padding:20px 20px 16px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:12px}
+        .sidebar-brand{padding:16px 20px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;flex-direction:column;align-items:center;gap:8px}
         .sidebar-brand h5{font-size:1rem;font-weight:700;margin:0;letter-spacing:-.3px}
         .sidebar-brand small{display:block;font-size:.7rem;opacity:.5;margin-top:2px}
         .sidebar-nav{padding:16px 12px;flex:1}
@@ -107,7 +107,7 @@ $resolved_tickets = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as c
         .sidebar-footer .user-avatar img{width:100%;height:100%;object-fit:cover}
         .sidebar-footer .user-name{font-size:.85rem;font-weight:600}
         .sidebar-footer .user-role{font-size:.7rem;opacity:.5}
-        .division-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);padding:4px 10px;border-radius:6px;font-size:.72rem;font-weight:500;margin-bottom:12px;margin-left:44px}
+        .division-badge{display:flex;align-items:center;justify-content:center;gap:5px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);padding:4px 10px;border-radius:6px;font-size:.72rem;font-weight:500;margin-bottom:12px;width:100%}
         .btn-logout{width:100%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);color:#fff;padding:8px;border-radius:8px;font-size:.82rem;font-weight:500;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .2s}
         .btn-logout:hover{background:rgba(255,255,255,.2);color:#fff}
         .main-content{margin-left:230px;padding:28px 32px;min-height:100vh}
@@ -214,7 +214,7 @@ $resolved_tickets = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as c
     <button class="hamburger-menu" id="hamburgerBtn"><span></span><span></span><span></span></button>
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
     <nav class="sidebar">
-        <div class="sidebar-brand" style="flex-direction: column; gap: 8px; align-items: center;">
+        <div class="sidebar-brand">
             <img src="../assets/Logo_TVRI.svg.png" alt="TVRI Logo" style="height: 50px;">
             <div style="text-align: center;"><h5>TVRI Ticketing</h5><small>Support System</small></div>
         </div>

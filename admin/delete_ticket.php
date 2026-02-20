@@ -25,15 +25,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['ticket_id'])) {
     $ticket = mysqli_fetch_assoc($result);
     mysqli_stmt_close($stmt);
     
-    // Delete ticket
+    // Delete ticket — log SEBELUM delete agar ticket_id masih valid saat insert log
+    logTicketActivity($conn, $ticket_id, $user['id'], 'ticket_deleted', $ticket['status'], 'Deleted', 'Tiket #' . $ticket_id . ' "' . $ticket['judul'] . '" dihapus oleh admin');
+
     $delete_query = "DELETE FROM tickets WHERE id = ?";
     $stmt_delete = mysqli_prepare($conn, $delete_query);
     mysqli_stmt_bind_param($stmt_delete, "i", $ticket_id);
     
     if (mysqli_stmt_execute($stmt_delete)) {
-        // Log activity
-        logTicketActivity($conn, $ticket_id, $user['id'], 'ticket_deleted', $ticket['status'], 'Deleted', 'Tiket "' . $ticket['judul'] . '" dihapus oleh admin');
-        
         mysqli_stmt_close($stmt_delete);
         header('Location: dashboard.php?success=deleted');
         exit();

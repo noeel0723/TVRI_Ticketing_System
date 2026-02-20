@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once '../config/auth.php';
 checkRole('teknisi');
 require_once '../config/koneksi.php';
@@ -19,10 +19,10 @@ $division_id = $user['division_id'];
 $div_q = mysqli_query($conn, "SELECT nama_divisi FROM divisions WHERE id = $division_id");
 $division_name = ($div_q && $r = mysqli_fetch_assoc($div_q)) ? $r['nama_divisi'] : 'N/A';
 
-$query_total = "SELECT COUNT(*) as total FROM tickets WHERE assigned_division_id = $division_id";
-$query_assigned = "SELECT COUNT(*) as total FROM tickets WHERE assigned_division_id = $division_id AND status = 'Assigned'";
-$query_progress = "SELECT COUNT(*) as total FROM tickets WHERE assigned_division_id = $division_id AND status = 'In Progress'";
-$query_resolved = "SELECT COUNT(*) as total FROM tickets WHERE assigned_division_id = $division_id AND status = 'Resolved'";
+$query_total = "SELECT COUNT(*) as total FROM tickets WHERE handled_by = {$user['id']}";
+$query_assigned = "SELECT COUNT(*) as total FROM tickets WHERE handled_by = {$user['id']} AND status = 'Assigned'";
+$query_progress = "SELECT COUNT(*) as total FROM tickets WHERE handled_by = {$user['id']} AND status = 'In Progress'";
+$query_resolved = "SELECT COUNT(*) as total FROM tickets WHERE handled_by = {$user['id']} AND status = 'Resolved'";
 
 $total_tickets = mysqli_fetch_assoc(mysqli_query($conn, $query_total))['total'];
 $assigned_tickets = mysqli_fetch_assoc(mysqli_query($conn, $query_assigned))['total'];
@@ -34,7 +34,7 @@ $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
 $offset = ($page - 1) * $limit;
 $total_pages = ceil($total_tickets / $limit);
 
-$query_tickets = "SELECT t.*, u.nama as pelapor, u.foto as pelapor_foto, TIMESTAMPDIFF(SECOND, t.updated_at, NOW()) as seconds_ago FROM tickets t LEFT JOIN users u ON t.user_id = u.id WHERE t.assigned_division_id = $division_id ORDER BY t.created_at DESC LIMIT $limit OFFSET $offset";
+$query_tickets = "SELECT t.*, u.nama as pelapor, u.foto as pelapor_foto, TIMESTAMPDIFF(SECOND, t.updated_at, NOW()) as seconds_ago FROM tickets t LEFT JOIN users u ON t.user_id = u.id WHERE t.handled_by = {$user['id']} ORDER BY t.created_at DESC LIMIT $limit OFFSET $offset";
 $result_tickets = mysqli_query($conn, $query_tickets);
 ?>
 <!DOCTYPE html>
@@ -50,7 +50,7 @@ $result_tickets = mysqli_query($conn, $query_tickets);
         *{margin:0;padding:0;box-sizing:border-box}
         body{font-family:'Inter',sans-serif;background:#f0f2f5}
         .sidebar{background:#10367D;min-height:100vh;color:#fff;position:fixed;top:0;left:0;width:230px;z-index:100;display:flex;flex-direction:column}
-        .sidebar-brand{padding:20px 20px 16px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:12px}
+        .sidebar-brand{padding:16px 20px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;flex-direction:column;align-items:center;gap:8px}
         .sidebar-brand h5{font-size:1rem;font-weight:700;margin:0;letter-spacing:-.3px}
         .sidebar-brand small{display:block;font-size:.7rem;opacity:.5;margin-top:2px}
         .sidebar-nav{padding:16px 12px;flex:1}
@@ -64,7 +64,7 @@ $result_tickets = mysqli_query($conn, $query_tickets);
         .sidebar-footer .user-avatar img{width:100%;height:100%;object-fit:cover}
         .sidebar-footer .user-name{font-size:.85rem;font-weight:600}
         .sidebar-footer .user-role{font-size:.7rem;opacity:.5}
-        .division-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);padding:4px 10px;border-radius:6px;font-size:.72rem;font-weight:500;margin-bottom:12px;margin-left:44px}
+        .division-badge{display:flex;align-items:center;justify-content:center;gap:5px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);padding:4px 10px;border-radius:6px;font-size:.72rem;font-weight:500;margin-bottom:12px;width:100%}
         .btn-logout{width:100%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);color:#fff;padding:8px;border-radius:8px;font-size:.82rem;font-weight:500;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .2s}
         .btn-logout:hover{background:rgba(255,255,255,.2);color:#fff}
         .main-content{margin-left:230px;padding:28px 32px;min-height:100vh}
@@ -256,7 +256,7 @@ $result_tickets = mysqli_query($conn, $query_tickets);
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
     <nav class="sidebar">
-        <div class="sidebar-brand" style="flex-direction: column; gap: 8px; align-items: center;">
+        <div class="sidebar-brand">
             <img src="../assets/Logo_TVRI.svg.png" alt="TVRI Logo" style="height: 50px;">
             <div style="text-align: center;"><h5>TVRI Ticketing</h5><small>Support System</small></div>
         </div>
@@ -279,7 +279,7 @@ $result_tickets = mysqli_query($conn, $query_tickets);
             <div class="hero-content">
                 <p class="hero-welcome">Welcome back,</p>
                 <h1 class="hero-name"><?= htmlspecialchars($user['nama']) ?> <span class="wave">&#x1F44B;</span></h1>
-                <p class="hero-subtitle">Kelola dan pantau tiket yang ditugaskan ke divisi Anda</p>
+                <p class="hero-subtitle">Kelola dan pantau tiket yang ditugaskan kepada Anda</p>
                 <div class="hero-division"><i class="bi bi-building"></i> Divisi: <?= htmlspecialchars($division_name) ?></div>
             </div>
             <div class="hero-image">
@@ -333,7 +333,7 @@ $result_tickets = mysqli_query($conn, $query_tickets);
         </div>
 
         <div class="table-card">
-            <div class="table-card-header"><h2><i class="bi bi-list-ul" style="margin-right:6px"></i>Ticket Divisi</h2><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><button type="button" class="btn-toggle-checkbox" id="btnToggleCheckbox" onclick="toggleCheckboxes()"><i class="bi bi-check-square"></i> Pilih Cepat</button><input type="text" id="searchTicket" placeholder="Cari tiket..." style="padding:8px 14px;border:1px solid #e5e7eb;border-radius:8px;font-size:0.85rem;width:280px;font-family:'Inter',sans-serif" onkeyup="filterTickets()"><span class="ticket-count"><?= $total_tickets ?> tiket &middot; Hal <?= $page ?>/<?= max(1,$total_pages) ?></span></div>
+            <div class="table-card-header"><h2><i class="bi bi-list-ul" style="margin-right:6px"></i>Tiket Saya</h2><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><button type="button" class="btn-toggle-checkbox" id="btnToggleCheckbox" onclick="toggleCheckboxes()"><i class="bi bi-check-square"></i> Pilih Cepat</button><input type="text" id="searchTicket" placeholder="Cari tiket..." style="padding:8px 14px;border:1px solid #e5e7eb;border-radius:8px;font-size:0.85rem;width:280px;font-family:'Inter',sans-serif" onkeyup="filterTickets()"><span class="ticket-count"><?= $total_tickets ?> tiket &middot; Hal <?= $page ?>/<?= max(1,$total_pages) ?></span></div>
             </div>
             <?php if(mysqli_num_rows($result_tickets) > 0): ?>
             <div class="table-wrap">
@@ -395,7 +395,7 @@ $result_tickets = mysqli_query($conn, $query_tickets);
             </div>
             <?php endif; ?>
             <?php else: ?>
-            <div class="empty-state"><i class="bi bi-inbox"></i><p>Belum ada tiket untuk divisi ini.</p></div>
+            <div class="empty-state"><i class="bi bi-inbox"></i><p>Belum ada tiket yang ditugaskan kepada Anda.</p></div>
             <?php endif; ?>
         </div>
         </form>
@@ -455,7 +455,7 @@ $result_tickets = mysqli_query($conn, $query_tickets);
     (function(){const h=document.getElementById('hamburgerBtn');const s=document.querySelector('.sidebar');const o=document.getElementById('sidebarOverlay');if(!h||!s||!o)return;h.addEventListener('click',function(){this.classList.toggle('active');s.classList.toggle('active');o.classList.toggle('active');document.body.style.overflow=s.classList.contains('active')?'hidden':'';});o.addEventListener('click',function(){h.classList.remove('active');s.classList.remove('active');this.classList.remove('active');document.body.style.overflow='';});document.querySelectorAll('.sidebar .nav-link, .sidebar a').forEach(function(l){l.addEventListener('click',function(){if(window.innerWidth<=768){h.classList.remove('active');s.classList.remove('active');o.classList.remove('active');document.body.style.overflow='';}});});})();
 
     // Delete ticket
-    function deleteTicket(event,id,title){event.preventDefault();event.stopPropagation();Swal.fire({title:'Hapus Tiket?',html:'Apakah Anda yakin ingin menghapus tiket:<br><strong>'+title+'</strong><br><br>Tindakan ini tidak dapat dibatalkan.',icon:'warning',showCancelButton:true,confirmButtonColor:'#dc2626',cancelButtonColor:'#6b7280',confirmButtonText:'Ya, Hapus',cancelButtonText:'Batal',reverseButtons:true}).then(r=>{if(r.isConfirmed){window.location.href='../admin/proses_delete_ticket.php?id='+id;}});}
+    function deleteTicket(event,id,title){event.preventDefault();event.stopPropagation();Swal.fire({title:'Hapus Tiket?',html:'Apakah Anda yakin ingin menghapus tiket:<br><strong>'+title+'</strong><br><br>Tindakan ini tidak dapat dibatalkan.',icon:'warning',showCancelButton:true,confirmButtonColor:'#dc2626',cancelButtonColor:'#6b7280',confirmButtonText:'Ya, Hapus',cancelButtonText:'Batal',reverseButtons:true}).then(r=>{if(r.isConfirmed){window.location.href='proses_hapus_tiket.php?id='+id;}});}
 
     // Session messages
     <?php if(isset($_SESSION['success'])): ?>

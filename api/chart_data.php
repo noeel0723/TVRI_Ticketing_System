@@ -25,8 +25,8 @@ $response = [];
 $where = '';
 if ($role === 'user') {
     $where = "WHERE user_id = $user_id";
-} elseif ($role === 'teknisi' && $division_id > 0) {
-    $where = "WHERE assigned_division_id = $division_id";
+} elseif ($role === 'teknisi') {
+    $where = "WHERE handled_by = $user_id";
 }
 
 $q = mysqli_query($conn, "SELECT status, COUNT(*) as cnt FROM tickets $where GROUP BY status ORDER BY FIELD(status,'Open','Assigned','In Progress','Resolved')");

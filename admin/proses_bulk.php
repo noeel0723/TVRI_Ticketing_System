@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * Bulk Delete Tickets
  * POST: bulk_action=delete, ticket_ids[]=...
@@ -50,8 +50,7 @@ if ($action === 'delete') {
     } elseif ($role === 'user') {
         $sql = "SELECT id, judul, status FROM tickets WHERE id IN ($ids_csv) AND user_id = $user_id AND status = 'Resolved'";
     } else {
-        $division_id = (int)$user['division_id'];
-        $sql = "SELECT id, judul, status FROM tickets WHERE id IN ($ids_csv) AND assigned_division_id = $division_id AND status = 'Resolved'";
+        $sql = "SELECT id, judul, status FROM tickets WHERE id IN ($ids_csv) AND handled_by = $user_id AND status = 'Resolved'";
     }
 
     $result = mysqli_query($conn, $sql);
@@ -75,8 +74,7 @@ if ($action === 'delete') {
         } elseif ($role === 'user') {
             $del = mysqli_query($conn, "DELETE FROM tickets WHERE id = $tid AND user_id = $user_id");
         } else {
-            $division_id = (int)$user['division_id'];
-            $del = mysqli_query($conn, "DELETE FROM tickets WHERE id = $tid AND assigned_division_id = $division_id");
+            $del = mysqli_query($conn, "DELETE FROM tickets WHERE id = $tid AND handled_by = $user_id");
         }
 
         if ($del && mysqli_affected_rows($conn) > 0) {

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once '../config/auth.php';
 checkRole('admin');
 require_once '../config/koneksi.php';
@@ -30,6 +30,20 @@ $ticket = mysqli_fetch_assoc($result_ticket);
 $query_divisions = "SELECT * FROM divisions ORDER BY nama_divisi ASC";
 $result_divisions = mysqli_query($conn, $query_divisions);
 
+// Load semua teknisi beserta division_id-nya
+$query_teknisi = "SELECT id, nama, division_id FROM users WHERE role = 'teknisi' ORDER BY nama ASC";
+$result_teknisi = mysqli_query($conn, $query_teknisi);
+$all_teknisi = [];
+while ($tek = mysqli_fetch_assoc($result_teknisi)) {
+    $all_teknisi[] = $tek;
+}
+
+// Teknisi yang sedang busy (Assigned atau In Progress) — tidak tersedia untuk assign baru
+$busy_ids = [];
+$busy_q = mysqli_query($conn, "SELECT DISTINCT handled_by FROM tickets WHERE status IN ('Assigned','In Progress') AND handled_by IS NOT NULL");
+while ($brow = mysqli_fetch_assoc($busy_q)) { $busy_ids[] = intval($brow['handled_by']); }
+foreach ($all_teknisi as &$tek) { $tek['busy'] = in_array(intval($tek['id']), $busy_ids); }
+unset($tek);
 
 // Assigned division name
 $assigned_div_name = '-';
@@ -72,8 +86,8 @@ $st = $st_config[$ticket['status']] ?? ['color'=>'#6b7280','bg'=>'#f3f4f6','labe
 
         /* Sidebar - same as dashboard */
         .sidebar{background:#10367D;min-height:100vh;color:#fff;position:fixed;top:0;left:0;width:230px;z-index:100;display:flex;flex-direction:column}
-        .sidebar-brand{padding:20px 20px 16px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:12px}
-        .sidebar-brand .brand-icon{width:36px;height:36px;background:rgba(255,255,255,.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem}
+        .sidebar-brand{padding:16px 20px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;flex-direction:column;align-items:center;gap:8px}
+
         .sidebar-brand h5{font-size:1rem;font-weight:700;margin:0;letter-spacing:-.3px}
         .sidebar-brand small{display:block;font-size:.7rem;opacity:.5;margin-top:2px}
         .sidebar-nav{padding:16px 12px;flex:1}
@@ -177,9 +191,12 @@ $st = $st_config[$ticket['status']] ?? ['color'=>'#6b7280','bg'=>'#f3f4f6','labe
             .info-grid{grid-template-columns:repeat(2,1fr)}
         }
         @media(max-width:768px){
+            .hamburger-menu{display:flex}
+            .sidebar{position:fixed!important;top:0;left:-100%!important;width:260px!important;height:100vh;z-index:999;transition:left .3s;overflow-y:auto}
+            .sidebar.active{left:0!important}
             html{overflow-x:hidden}
-            .sidebar{display:none!important;width:0;transform:translateX(-100%);visibility:hidden}
-            .page-wrapper{margin-left:0;padding:20px 16px}
+
+            .page-wrapper{margin-left:0;padding:56px 16px 20px}
             .breadcrumb-bar{font-size:.8rem;padding:12px 0}
             .ticket-header h2{font-size:1.1rem}
             .ticket-id-row{flex-direction:column;align-items:flex-start;gap:8px}
@@ -212,28 +229,21 @@ $st = $st_config[$ticket['status']] ?? ['color'=>'#6b7280','bg'=>'#f3f4f6','labe
             .nav-link .badge{font-size:0.55em!important;padding:2px 5px;transform:translate(-50%,-50%)!important}
         }
 /* Mobile Hamburger Menu */
-.hamburger-menu{display:none;position:fixed;top:20px;left:20px;z-index:1100;background:white;border:none;width:45px;height:45px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.1);cursor:pointer;padding:10px;flex-direction:column;justify-content:space-around;transition:all 0.3s ease}
-.hamburger-menu span{display:block;width:100%;height:3px;background:#6366f1;border-radius:2px;transition:all 0.3s ease}
-.hamburger-menu.active span:nth-child(1){transform:rotate(45deg) translate(8px, 8px)}
-.hamburger-menu.active span:nth-child(2){opacity:0}
-.hamburger-menu.active span:nth-child(3){transform:rotate(-45deg) translate(7px, -7px)}
-.sidebar-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:998;opacity:0;transition:opacity 0.3s ease}
-.sidebar-overlay.active{display:block;opacity:1}
-@media(max-width:768px){.hamburger-menu{display:flex}.sidebar{position:fixed!important;top:0;left:-100%!important;width:260px!important;height:100vh;z-index:999;transition:left 0.3s ease;overflow-y:auto}.sidebar.active{left:0!important}}
+        .hamburger-menu{display:none;position:fixed;top:20px;left:20px;z-index:1100;background:#fff;border:none;width:44px;height:44px;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,.1);cursor:pointer;padding:10px;flex-direction:column;justify-content:space-around;transition:all .3s}
+        .hamburger-menu span{display:block;width:100%;height:3px;background:#10367D;border-radius:2px;transition:all .3s}
+        .hamburger-menu.active span:nth-child(1){transform:rotate(45deg) translate(8px,8px)}
+        .hamburger-menu.active span:nth-child(2){opacity:0}
+        .hamburger-menu.active span:nth-child(3){transform:rotate(-45deg) translate(7px,-7px)}
+        .sidebar-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.45);z-index:998;opacity:0;transition:opacity .3s}
+        .sidebar-overlay.active{display:block;opacity:1}
     </style>
 </head>
 <body>
     <!-- Mobile Hamburger Menu -->
-    <button class="hamburger-menu" id="hamburgerBtn">
-        <span></span>
-        <span></span>
-        <span></span>
-    </button>
+    <button class="hamburger-menu" id="hamburgerBtn"><span></span><span></span><span></span></button>
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
-
-    <!-- Sidebar Navigation -->
     <nav class="sidebar">
-        <div class="sidebar-brand" style="flex-direction: column; gap: 8px; align-items: center;">
+        <div class="sidebar-brand">
             <img src="../assets/Logo_TVRI.svg.png" alt="TVRI Logo" style="height: 50px;">
             <div style="text-align: center;"><h5>TVRI Ticketing</h5><small>Support System</small></div>
         </div>
@@ -377,12 +387,19 @@ $st = $st_config[$ticket['status']] ?? ['color'=>'#6b7280','bg'=>'#f3f4f6','labe
                             <input type="hidden" name="ticket_id" value="<?=$ticket['id']?>">
                             <div style="margin-bottom:14px">
                                 <label class="form-label-sm">Divisi Tujuan</label>
-                                <select class="form-select-custom" name="division_id" id="divisionSelect" required>
+                                <select class="form-select-custom" name="division_id" id="divisionSelect" required onchange="loadTeknisi(this.value)">
                                     <option value="">-- Pilih Divisi --</option>
                                     <?php while($division = mysqli_fetch_assoc($result_divisions)): ?>
                                     <option value="<?=$division['id']?>" <?= ($ticket['assigned_division_id'] == $division['id']) ? 'selected' : '' ?>><?=htmlspecialchars($division['nama_divisi'])?></option>
                                     <?php endwhile; ?>
                                 </select>
+                            </div>
+                            <div style="margin-bottom:14px">
+                                <label class="form-label-sm">Teknisi yang Ditugaskan <span style="color:#dc2626">*</span></label>
+                                <select class="form-select-custom" name="teknisi_id" id="teknisiSelect" required>
+                                    <option value="">-- Pilih Divisi dahulu --</option>
+                                </select>
+                                <div id="teknisiHint" style="font-size:.72rem;color:#9ca3af;margin-top:4px"></div>
                             </div>
                             <div style="margin-bottom:6px">
                                 <label class="form-label-sm">Priority</label>
@@ -419,17 +436,56 @@ $st = $st_config[$ticket['status']] ?? ['color'=>'#6b7280','bg'=>'#f3f4f6','labe
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+    // Data tecnisi per divisi dari PHP
+    const teknisiData = <?= json_encode(array_map(function($t){ return ['id'=>$t['id'],'nama'=>$t['nama'],'div'=>$t['division_id'],'busy'=>(bool)$t['busy']]; }, $all_teknisi)) ?>;
+
+    function loadTeknisi(divId) {
+        const sel = document.getElementById('teknisiSelect');
+        const hint = document.getElementById('teknisiHint');
+        sel.innerHTML = '<option value="">-- Pilih Teknisi --</option>';
+        if (!divId) { sel.innerHTML = '<option value="">-- Pilih Divisi dahulu --</option>'; hint.textContent = ''; return; }
+        const filtered = teknisiData.filter(t => String(t.div) === String(divId));
+        if (filtered.length === 0) {
+            sel.innerHTML = '<option value="">Tidak ada teknisi di divisi ini</option>';
+            hint.textContent = 'Tambahkan teknisi ke divisi ini terlebih dahulu.';
+            hint.style.color = '#dc2626';
+        } else {
+            filtered.forEach(t => {
+                const opt = document.createElement('option');
+                opt.value = t.id;
+                opt.textContent = t.busy ? t.nama + ' (Sedang Bertugas)' : t.nama;
+                if (t.busy) { opt.disabled = true; opt.style.color = '#9ca3af'; }
+                sel.appendChild(opt);
+            });
+            const available = filtered.filter(t => !t.busy).length;
+            hint.textContent = available + ' dari ' + filtered.length + ' teknisi tersedia';
+            hint.style.color = available > 0 ? '#16a34a' : '#dc2626';
+        }
+    }
+
+    // Trigger on page load jika divisi sudah terisi
+    window.addEventListener('DOMContentLoaded', function(){
+        const divId = document.getElementById('divisionSelect').value;
+        if (divId) loadTeknisi(divId);
+    });
+
     function submitAssign() {
         const div = document.getElementById('divisionSelect');
+        const tek = document.getElementById('teknisiSelect');
         if (!div.value) {
             Swal.fire({icon:'warning',title:'Pilih Divisi',text:'Silakan pilih divisi tujuan terlebih dahulu.'});
             return;
         }
+        if (!tek.value) {
+            Swal.fire({icon:'warning',title:'Pilih Teknisi',text:'Silakan pilih teknisi yang akan ditugaskan.'});
+            return;
+        }
         const divText = div.selectedOptions[0].text;
+        const tekText = tek.selectedOptions[0].text;
         const prText = document.getElementById('prioritySelect').value;
         Swal.fire({
             title:'Konfirmasi Assign',
-            html:'Assign tiket <strong>#<?=$ticket['id']?></strong> ke divisi <strong>'+divText+'</strong> dengan priority <strong>'+prText+'</strong>?',
+            html:'Assign tiket <strong>#<?=$ticket['id']?></strong> ke divisi <strong>'+divText+'</strong><br>Teknisi: <strong>'+tekText+'</strong><br>Priority: <strong>'+prText+'</strong>',
             icon:'question',
             showCancelButton:true,
             confirmButtonColor:'#10367D',
@@ -441,42 +497,11 @@ $st = $st_config[$ticket['status']] ?? ['color'=>'#6b7280','bg'=>'#f3f4f6','labe
         });
     }
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('error') === 'empty') Swal.fire({icon:'error',title:'Gagal',text:'Semua field wajib diisi.'});
+    if (urlParams.get('error') === 'empty') Swal.fire({icon:'error',title:'Gagal',text:'Semua field wajib diisi termasuk teknisi.'});
+    else if (urlParams.get('error') === 'invalid_teknisi') Swal.fire({icon:'error',title:'Gagal',text:'Teknisi tidak valid atau tidak sesuai divisi.'});
     else if (urlParams.get('error') === 'invalid_priority') Swal.fire({icon:'error',title:'Gagal',text:'Priority tidak valid.'});
     else if (urlParams.get('error') === 'gagal') Swal.fire({icon:'error',title:'Gagal',text:'Terjadi kesalahan saat assign.'});
     </script>
-<script>
-// Mobile Sidebar Toggle
-(function(){
-    const hamburgerBtn = document.getElementById('hamburgerBtn');
-    const sidebar = document.querySelector('.sidebar');
-    const sidebarOverlay = document.getElementById('sidebarOverlay');
-    if(!hamburgerBtn || !sidebar || !sidebarOverlay) return;
-
-    hamburgerBtn.addEventListener('click', function(){
-        this.classList.toggle('active');
-        sidebar.classList.toggle('active');
-        sidebarOverlay.classList.toggle('active');
-        document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
-    });
-
-    sidebarOverlay.addEventListener('click', function(){
-        hamburgerBtn.classList.remove('active');
-        sidebar.classList.remove('active');
-        this.classList.remove('active');
-        document.body.style.overflow = '';
-    });
-
-    document.querySelectorAll('.sidebar .nav-link, .sidebar a').forEach(function(link){
-        link.addEventListener('click', function(){
-            if(window.innerWidth <= 768){
-                hamburgerBtn.classList.remove('active');
-                sidebar.classList.remove('active');
-                sidebarOverlay.classList.remove('active');
-                document.body.style.overflow = '';
-            }
-        });
-    });
-})();</script>
+<script>(function(){const h=document.getElementById('hamburgerBtn');const s=document.querySelector('.sidebar');const o=document.getElementById('sidebarOverlay');if(!h||!s||!o)return;h.addEventListener('click',function(){this.classList.toggle('active');s.classList.toggle('active');o.classList.toggle('active');document.body.style.overflow=s.classList.contains('active')?'hidden':'';});o.addEventListener('click',function(){h.classList.remove('active');s.classList.remove('active');this.classList.remove('active');document.body.style.overflow='';});document.querySelectorAll('.sidebar .nav-link, .sidebar a').forEach(function(l){l.addEventListener('click',function(){if(window.innerWidth<=768){h.classList.remove('active');s.classList.remove('active');o.classList.remove('active');document.body.style.overflow='';}});});})();</script>
 </body>
 </html>

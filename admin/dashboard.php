@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once '../config/auth.php';
 checkRole('admin');
 require_once '../config/koneksi.php';
@@ -388,10 +388,6 @@ $today = str_replace(array_keys($months_id), array_values($months_id), $today);
             </div>
             <div class="top-bar-right">
                 <a href="dashboard.php" class="notif-btn" title="Refresh"><i class="bi bi-arrow-clockwise"></i></a>
-                <div class="notif-btn" title="Tiket Open: <?= $open_tickets ?>">
-                    <i class="bi bi-bell"></i>
-                    <?php if($open_tickets > 0): ?><span class="badge-dot"></span><?php endif; ?>
-                </div>
                 <a href="profile.php" class="admin-profile" title="Profil">
                     <div class="ap-avatar"><?php if($_user_photo): ?><img src="<?= htmlspecialchars($_user_photo) ?>" alt=""><?php else: ?><?= strtoupper(substr($user['nama'],0,1)) ?><?php endif; ?></div>
                     <span class="ap-name"><?= htmlspecialchars($user['nama']) ?></span>

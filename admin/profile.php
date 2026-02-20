@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once '../config/auth.php';
 checkRole('admin');
 require_once '../config/koneksi.php';
@@ -93,6 +93,7 @@ $total_resolved = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as c F
         body{font-family:'Inter',sans-serif;background:#f0f2f5}
         .sidebar{background:#10367D;min-height:100vh;color:#fff;position:fixed;top:0;left:0;width:230px;z-index:100;display:flex;flex-direction:column}
         .sidebar-brand{padding:20px 20px 16px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:12px}
+        .sidebar-brand .brand-icon{width:36px;height:36px;background:rgba(255,255,255,.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem}
         .sidebar-brand h5{font-size:1rem;font-weight:700;margin:0;letter-spacing:-.3px}
         .sidebar-brand small{display:block;font-size:.7rem;opacity:.5;margin-top:2px}
         .sidebar-nav{padding:16px 12px;flex:1}
@@ -184,7 +185,7 @@ $total_resolved = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as c F
         @media(max-width:1100px){.profile-layout{grid-template-columns:1fr}}
         @media(max-width:768px){
             html,body{overflow-x:hidden;width:100%}
-            .main-content{margin-left:0;padding:20px 16px}
+            .main-content{margin-left:0;padding:56px 16px 20px}
             .profile-layout{grid-template-columns:1fr;gap:16px}
             .profile-card-header{padding:24px 20px 40px}
             .profile-card-body{padding:0 20px 24px}

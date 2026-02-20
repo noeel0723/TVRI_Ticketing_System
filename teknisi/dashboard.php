@@ -247,7 +247,7 @@ $result_tickets = mysqli_query($conn, $query_tickets);
         .hamburger-menu.active span:nth-child(3){transform:rotate(-45deg) translate(7px,-7px)}
         .sidebar-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.45);z-index:998;opacity:0;transition:opacity .3s}
         .sidebar-overlay.active{display:block;opacity:1}
-        @media(max-width:768px){.hamburger-menu{display:flex}.sidebar{position:fixed!important;top:0;left:-100%!important;width:260px!important;height:100vh;z-index:999;transition:left .3s;overflow-y:auto}.sidebar.active{left:0!important}}
+        @media(max-width:768px){.hamburger-menu{display:flex}.sidebar{position:fixed!important;top:0;left:-100%!important;width:260px!important;height:var(--sidebar-h,100vh);z-index:999;transition:left .3s;overflow-y:auto;-webkit-overflow-scrolling:touch}.sidebar.active{left:0!important}.sidebar-nav{flex:none!important}}
     </style>
 </head>
 <body>
@@ -476,5 +476,6 @@ $result_tickets = mysqli_query($conn, $query_tickets);
         Swal.fire({icon:'error',title:'Gagal memproses',text:'Gagal mengambil data tiket untuk bulk delete.',timer:3000,showConfirmButton:false});
     }
     </script>
+<script>!function(){function s(){document.documentElement.style.setProperty("--sidebar-h",window.innerHeight+"px")}s();window.addEventListener("resize",s);window.addEventListener("orientationchange",function(){setTimeout(s,150)})}();</script>
 </body>
 </html>

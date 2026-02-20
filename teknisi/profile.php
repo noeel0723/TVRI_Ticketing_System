@@ -207,7 +207,7 @@ $resolved_tickets = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as c
         .hamburger-menu.active span:nth-child(3){transform:rotate(-45deg) translate(7px,-7px)}
         .sidebar-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.45);z-index:998;opacity:0;transition:opacity .3s}
         .sidebar-overlay.active{display:block;opacity:1}
-        @media(max-width:768px){.hamburger-menu{display:flex}.sidebar{position:fixed!important;top:0;left:-100%!important;width:260px!important;height:100vh;z-index:999;transition:left .3s;overflow-y:auto}.sidebar.active{left:0!important}}
+        @media(max-width:768px){.hamburger-menu{display:flex}.sidebar{position:fixed!important;top:0;left:-100%!important;width:260px!important;height:var(--sidebar-h,100vh);z-index:999;transition:left .3s;overflow-y:auto;-webkit-overflow-scrolling:touch}.sidebar.active{left:0!important}.sidebar-nav{flex:none!important}}
     </style>
 </head>
 <body>
@@ -378,5 +378,6 @@ $resolved_tickets = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as c
     <?php if (!empty($errors)): ?>Swal.fire({icon:'error',title:'Gagal!',html:'<?= implode("<br>", array_map("addslashes", $errors)) ?>'});<?php endif; ?>
     (function(){const h=document.getElementById('hamburgerBtn');const s=document.querySelector('.sidebar');const o=document.getElementById('sidebarOverlay');if(!h||!s||!o)return;h.addEventListener('click',function(){this.classList.toggle('active');s.classList.toggle('active');o.classList.toggle('active');document.body.style.overflow=s.classList.contains('active')?'hidden':'';});o.addEventListener('click',function(){h.classList.remove('active');s.classList.remove('active');this.classList.remove('active');document.body.style.overflow='';});document.querySelectorAll('.sidebar .nav-link, .sidebar a').forEach(function(l){l.addEventListener('click',function(){if(window.innerWidth<=768){h.classList.remove('active');s.classList.remove('active');o.classList.remove('active');document.body.style.overflow='';}});});})();
     </script>
+<script>!function(){function s(){document.documentElement.style.setProperty("--sidebar-h",window.innerHeight+"px")}s();window.addEventListener("resize",s);window.addEventListener("orientationchange",function(){setTimeout(s,150)})}();</script>
 </body>
 </html>

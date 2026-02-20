@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once '../config/auth.php';
 checkRole('user');
 require_once '../config/koneksi.php';
@@ -116,7 +116,7 @@ $history_result = mysqli_query($conn, $history_query);
         .hamburger-menu.active span:nth-child(3){transform:rotate(-45deg) translate(7px,-7px)}
         .sidebar-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.45);z-index:998;opacity:0;transition:opacity .3s}
         .sidebar-overlay.active{display:block;opacity:1}
-        @media(max-width:768px){body{overflow-x:hidden}.hamburger-menu{display:flex}.sidebar{position:fixed!important;top:0;left:-100%!important;width:260px!important;height:100vh;z-index:999;transition:left .3s;overflow-y:auto}.sidebar.active{left:0!important}.main-content{margin-left:0;padding:80px 16px 24px}}
+        @media(max-width:768px){body{overflow-x:hidden}.hamburger-menu{display:flex}.sidebar{position:fixed!important;top:0;left:-100%!important;width:260px!important;height:var(--sidebar-h,100vh);z-index:999;transition:left .3s;overflow-y:auto;-webkit-overflow-scrolling:touch}.sidebar.active{left:0!important}.sidebar-nav{flex:none!important}.main-content{margin-left:0;padding:80px 16px 24px}}
     </style>
 </head>
 <body>
@@ -317,10 +317,11 @@ $history_result = mysqli_query($conn, $history_query);
         if(!hamburgerBtn||!sidebar||!sidebarOverlay)return;
         hamburgerBtn.addEventListener('click',function(){this.classList.toggle('active');sidebar.classList.toggle('active');sidebarOverlay.classList.toggle('active');document.body.style.overflow=sidebar.classList.contains('active')?'hidden':'';});
         sidebarOverlay.addEventListener('click',function(){hamburgerBtn.classList.remove('active');sidebar.classList.remove('active');this.classList.remove('active');document.body.style.overflow='';});
-        document.querySelectorAll('.sidebar .nav-link, .sidebar a').forEach(function(link){link.addEventListener('click',function(){if(window.innerWidth<=768){hamburgerBtn.classList.remove('active');sidebar.classList.remove('active');sidebarOverlay.classList.remove('active');document.body.style.overflow='';}});});
+        document.querySelectorAll('.sidebar .nav-link, .sidebar a').forEach(function(link){link.addEventListener('click',function(){if(window.innerWidth<=768){hamburgerBtn.classList.remove('active');sidebar.classList.remove('active');sidebarOverlay.classList.remove('active');document.body.style.overflow='';}});});  
     })();
     // Form validation removed - no character limits
     </script>
+<script>!function(){function s(){document.documentElement.style.setProperty("--sidebar-h",window.innerHeight+"px")}s();window.addEventListener("resize",s);window.addEventListener("orientationchange",function(){setTimeout(s,150)})}();</script>
 </body>
 </html>
 

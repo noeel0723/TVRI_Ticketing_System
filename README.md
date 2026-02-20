@@ -1,311 +1,355 @@
-<<<<<<< HEAD
 ﻿# TVRI Ticketing System
-## Sistem Manajemen Tiket Pelaporan TVRI
+### Sistem Manajemen Tiket Pelaporan — TVRI (Televisi Republik Indonesia)
 
-###  Deskripsi
-Sistem ticketing ini merupakan project akhir magang untuk TVRI. Sistem ini memungkinkan karyawan untuk melaporkan permasalahan teknis, dan admin dapat menugaskan tiket tersebut ke divisi teknisi yang sesuai. Teknisi dapat memperbarui status perbaikan dan memberikan catatan.
+---
 
-###  Fitur Utama
+## Deskripsi
 
-#### 1. **Multi-Role System**
-- **User/Pelapor**: Membuat laporan tiket masalah teknis
-- **Admin**: Mengelola dan menugaskan tiket ke divisi teknisi
-- **Teknisi**: Mengupdate status perbaikan dan memberikan laporan
+Sistem ticketing berbasis web untuk TVRI yang memungkinkan karyawan melaporkan permasalahan teknis. Admin dapat menugaskan tiket ke divisi teknisi yang sesuai, dan teknisi dapat memperbarui status perbaikan lengkap dengan unggah foto bukti perbaikan. Seluruh aktivitas tiket tercatat dalam log riwayat, termasuk tiket yang telah dihapus.
 
-#### 2. **Manajemen Tiket**
-- Buat tiket baru dengan judul, lokasi, dan deskripsi masalah
-- Status tiket: Open  Assigned  In Progress  Resolved
-- Priority level: Low, Medium, High, Urgent
-- 3 Divisi Teknisi: IT, Listrik, Studio (Audio Video)
+---
 
-#### 3. **Logging & Riwayat**
-- Setiap aktivitas tiket tercatat dalam log
-- Timeline riwayat aktivitas lengkap dengan user dan waktu
-- Halaman detail tiket dengan semua informasi dan riwayat
+## Fitur Utama
 
-#### 4. **Laporan PDF**
-- Generate PDF untuk setiap tiket
-- Tampilan profesional dengan badge status dan priority
-- Informasi lengkap termasuk catatan teknisi
+### Multi-Role System
+| Role | Kemampuan |
+|------|-----------|
+| **User / Pelapor** | Buat tiket, pantau status, hapus tiket milik sendiri |
+| **Admin** | Kelola semua tiket, assign ke teknisi, kelola user, lihat activity log |
+| **Teknisi** | Lihat tiket yang ditugaskan, update status perbaikan, upload foto hasil kerja |
 
-#### 5. **Notifikasi Real-time**
-- SweetAlert2 notifications untuk feedback user
-- Badge notifikasi untuk pending tasks (Admin & Teknisi)
-- Success/error messages yang informatif
+### Manajemen Tiket
+- Buat tiket baru dengan judul, lokasi, deskripsi, dan lampiran foto
+- Status tiket: `Open` → `Assigned` → `In Progress` → `Resolved`
+- Priority: `Low`, `Medium`, `High`, `Urgent`
+- 3 Divisi Teknisi: **IT**, **Listrik**, **Studio (Audio Video)**
+- Bulk action (delete/assign) untuk Admin
 
-#### 6. **Dashboard Interaktif**
-- Statistik real-time untuk setiap role
-- Card statistics dengan hover effects
-- Tabel responsive dengan Bootstrap 5
-- Gradient purple theme yang modern
+### Activity Log & Riwayat
+- Setiap aktivitas tiket tercatat secara otomatis
+- Riwayat tetap tersimpan meskipun tiket sudah dihapus (judul tiket dipreservasi)
+- Halaman Activity Logs khusus Admin dengan filter per tab
+- Halaman detail tiket menampilkan timeline lengkap
 
-###  Struktur Folder
-```
-ticketing_tvri/
- admin/              # Halaman admin
-    dashboard.php
-    assign.php
-    proses_assign.php
- user/               # Halaman user/pelapor
-    dashboard.php
-    lapor.php
-    proses_lapor.php
- teknisi/            # Halaman teknisi
-    dashboard.php
-    update_status.php
-    proses_update.php
- config/             # Konfigurasi sistem
-    koneksi.php     # Database connection
-    auth.php        # Authentication & RBAC
-    logger.php      # Activity logging functions
- fpdf/               # Library PDF
-    fpdf.php
- scripts/            # Utility scripts
-    reset_passwords.php
- index.php           # Login page
- cek_login.php       # Login process
- logout.php          # Logout process
- cetak.php           # PDF generator
- detail.php          # Ticket detail & history
- db_ticketing.sql    # Database schema
- update_db_logs.sql  # Ticket logs table
- README.md
-```
+### Cetak PDF (Invoice Style)
+- Generate PDF per tiket dalam layout invoice profesional
+- Header berwarna biru TVRI dengan logo resmi
+- Metadata tiles: nomor tiket, status, prioritas, tanggal
+- Bagian tanda tangan: Pelapor, Approver, Teknisi
 
-###  Teknologi yang Digunakan
+### Upload Foto
+- User dapat melampirkan foto saat membuat tiket
+- Teknisi dapat mengunggah foto bukti perbaikan
+- Foto tersimpan terorganisir di folder `uploads/`
 
-**Backend:**
+### Manajemen User (Admin)
+- CRUD lengkap untuk akun user dan teknisi
+- Tambah user baru, edit data, reset password, nonaktifkan akun
+
+### Notifikasi Real-time
+- Badge notifikasi di sidebar untuk pending tasks (Admin & Teknisi)
+- SweetAlert2 feedback untuk setiap aksi penting
+- Polling otomatis untuk cek tiket baru (API)
+
+### Autentikasi & Keamanan
+- Login dengan username + password (hash bcrypt)
+- Session-based auth dengan IP validation
+- Ganti password mandiri di halaman profil
+- Email bersifat **opsional** saat registrasi
+
+---
+
+## Teknologi
+
+**Backend**
 - PHP 7.4+
-- MySQL 5.7+
+- MySQL 5.7+ / MariaDB 10+
 - MySQLi Extension
 
-**Frontend:**
-- Bootstrap 5.3.0
-- Bootstrap Icons 1.11.0
+**Frontend**
+- Bootstrap 5.3
+- Bootstrap Icons 1.11
 - SweetAlert2 v11
 - Vanilla JavaScript
 
-**Libraries:**
-- FPDF 1.86 (Custom simplified version)
+**Libraries**
+- FPDF 1.86 — PDF generation
+- PHPMailer 6 — Email notifications (opsional)
 
-**Security:**
-- Password hashing with `password_hash()`
-- Session management with IP validation
-- RBAC (Role-Based Access Control)
-- SQL injection prevention with `mysqli_real_escape_string()`
+---
 
-###  Instalasi
+## Struktur Folder
 
-#### 1. Prerequisites
-- XAMPP/WAMP (PHP 7.4+ dan MySQL)
+```
+ticketing_tvri/
+├── admin/                    # Halaman admin
+│   ├── dashboard.php
+│   ├── assign.php
+│   ├── activity_logs.php
+│   ├── kelola_user.php
+│   ├── profile.php
+│   ├── proses_assign.php
+│   ├── proses_bulk.php
+│   ├── proses_user.php
+│   └── proses_hapus_tiket.php
+├── teknisi/                  # Halaman teknisi
+│   ├── dashboard.php
+│   ├── profile.php
+│   ├── update_status.php
+│   ├── proses_update.php
+│   └── proses_hapus_tiket.php
+├── user/                     # Halaman user/pelapor
+│   ├── dashboard.php
+│   ├── lapor.php
+│   ├── profile.php
+│   ├── proses_lapor.php
+│   └── delete_ticket.php
+├── api/                      # Endpoint API internal
+│   ├── check_tickets.php
+│   └── chart_data.php
+├── config/                   # Konfigurasi sistem
+│   ├── koneksi.php           # Koneksi database (env-based)
+│   ├── auth.php              # Autentikasi & RBAC
+│   ├── bootstrap.php         # Inisialisasi session & koneksi
+│   ├── logger.php            # Fungsi activity logging
+│   ├── upload_utils.php      # Helper upload file
+│   ├── mailer.php            # Konfigurasi PHPMailer
+│   ├── email_config.php      # Pengaturan SMTP
+│   └── email_helper.php      # Helper kirim email
+├── fpdf/                     # Library FPDF
+│   └── fpdf.php
+├── vendor/                   # Library PHPMailer
+│   └── PHPMailer/
+├── assets/                   # Gambar & aset statis
+│   ├── Logo_TVRI.svg.png
+│   └── TVRILogo2019.svg.png
+├── uploads/                  # File yang diunggah user
+│   ├── tickets/              # Lampiran tiket
+│   ├── perbaikan/            # Foto bukti perbaikan teknisi
+│   └── profile_photos/       # Foto profil user
+├── scripts/                  # Skrip utilitas developer
+│   └── reset_passwords.php   # Reset semua password ke default
+├── logs/                     # Log fallback sistem
+├── .env                      # Konfigurasi environment (JANGAN di-commit)
+├── .env.example              # Template konfigurasi
+├── index.php                 # Halaman login & registrasi
+├── cek_login.php             # Proses login
+├── logout.php                # Proses logout
+├── register.php              # Proses registrasi
+├── detail.php                # Detail & riwayat tiket
+├── cetak.php                 # Generator PDF invoice
+├── change_password.php       # Ganti password
+├── upload_photo.php          # Handle upload foto profil
+├── db_ticketing.sql          # Skema database utama
+├── update_db_logs.sql        # Migrasi tabel ticket_logs
+├── create_db_user.sql        # Skrip buat user DB terbatas
+└── README.md
+```
+
+---
+
+## Instalasi & Setup
+
+### 1. Prasyarat
+- XAMPP / WAMP (PHP 7.4+ dan MySQL/MariaDB)
 - Web browser modern (Chrome, Firefox, Edge)
 
-#### 2. Setup Database
-```sql
--- 1. Buat database
-CREATE DATABASE db_ticketing;
+### 2. Clone / Copy Project
+```bash
+git clone https://github.com/<username>/ticketing_tvri.git
+# Letakkan di htdocs XAMPP
+# Contoh: D:\xamp\htdocs\ticketing_tvri
+```
 
--- 2. Import schema utama
+### 3. Setup Database
+```sql
+-- Buat database
+CREATE DATABASE db_ticketing CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- Import schema utama
 mysql -u root db_ticketing < db_ticketing.sql
 
--- 3. Import tabel logging
+-- Import migrasi tabel logging
 mysql -u root db_ticketing < update_db_logs.sql
 ```
 
 Atau melalui phpMyAdmin:
-1. Buka `http://localhost/phpmyadmin`
-2. Buat database baru dengan nama `db_ticketing`
-3. Import file `db_ticketing.sql`
-4. Import file `update_db_logs.sql`
+1. Buat database `db_ticketing`
+2. Import `db_ticketing.sql`
+3. Import `update_db_logs.sql`
 
-#### 3. Konfigurasi Koneksi
-Buka `config/koneksi.php` dan sesuaikan jika perlu:
-```php
-$host = ''localhost'';
-$username = ''root'';
-$password = '''';        // Sesuaikan dengan password MySQL Anda
-$database = ''db_ticketing'';
+### 4. Konfigurasi Environment
+Salin `.env.example` menjadi `.env` dan sesuaikan:
+```env
+DB_HOST=localhost
+DB_USER=root
+DB_PASS=
+DB_NAME=db_ticketing
 ```
 
-#### 4. Deployment
-Copy folder `ticketing_tvri` ke:
-- **XAMPP**: `C:\xampp\htdocs\ticketing_tvri`
-- **WAMP**: `C:\wamp\www\ticketing_tvri`
-
-#### 5. Akses Sistem
-Buka browser dan akses: `http://localhost/ticketing_tvri`
-
-###  Default Akun Login
-
-| Role     | Username   | Password | Keterangan                |
-|----------|------------|----------|---------------------------|
-| Admin    | admin      | 123456   | Administrator sistem      |
-| User     | budi       | 123456   | Pelapor (User biasa)      |
-| User     | siti       | 123456   | Pelapor (User biasa)      |
-| Teknisi  | andi_it    | 123456   | Teknisi Divisi IT         |
-| Teknisi  | joko_listrik | 123456 | Teknisi Divisi Listrik    |
-| Teknisi  | dedi_studio | 123456  | Teknisi Divisi Studio     |
-
-** PENTING**: Ganti semua password default setelah deployment!
-
-###  Keamanan
-
-#### Authentication
-- Session-based login dengan session ID regeneration
-- IP address validation untuk mencegah session hijacking
-- Role-based access control pada setiap halaman
-
-#### Password Management
-Untuk development, gunakan `scripts/reset_passwords.php` untuk reset semua password ke default (123456).
-Untuk production, **HARUS** mengganti semua password melalui database atau buat halaman change password.
-
-#### SQL Security
-- Semua user input di-escape dengan `mysqli_real_escape_string()`
-- Prepared statements untuk query yang kompleks (direkomendasikan untuk upgrade)
-
-###  Workflow Sistem
-
-#### 1. User (Pelapor) Workflow
+### 5. Akses Sistem
 ```
-Login  Dashboard  Lapor Tiket Baru  Isi Form  Submit
- Tiket tercatat dengan status "Open"  Menunggu Admin assign
+http://localhost/ticketing_tvri
 ```
 
-#### 2. Admin Workflow
-```
-Login  Dashboard  Lihat Tiket Open  Klik Assign  
- Pilih Divisi Teknisi + Set Priority  Submit
- Status berubah "Assigned"  Teknisi dapat melihat tiket
-```
-
-#### 3. Teknisi Workflow
-```
-Login  Dashboard  Lihat Tiket Assigned/In Progress
- Klik "Mulai" (Assigned)  Status "In Progress"  Kerjakan perbaikan
- Klik "Selesai"  Isi Catatan Teknisi  Submit  Status "Resolved"
-```
-
-#### 4. Activity Logging
-Setiap aktivitas penting tercatat:
-- **Create**: User membuat tiket baru
-- **Assign**: Admin menugaskan ke divisi
-- **Status Update**: Teknisi mengubah status tiket
-- Log dapat dilihat di halaman detail tiket
-
-###  Database Schema
-
-#### Tabel `users`
-- `id`: Primary key
-- `nama`: Nama lengkap user
-- `username`: Username login (unique)
-- `password`: Hashed password
-- `role`: enum(''admin'', ''user'', ''teknisi'')
-- `division_id`: Foreign key ke `divisions` (untuk teknisi)
-
-#### Tabel `divisions`
-- `id`: Primary key
-- `nama_divisi`: Nama divisi (IT, Listrik, Studio)
-
-#### Tabel `tickets`
-- `id`: Primary key
-- `user_id`: FK ke users (pelapor)
-- `judul`: Judul tiket
-- `lokasi`: Lokasi masalah
-- `deskripsi`: Deskripsi detail
-- `assigned_division_id`: FK ke divisions
-- `status`: enum(''Open'', ''Assigned'', ''In Progress'', ''Resolved'')
-- `priority`: enum(''Low'', ''Medium'', ''High'', ''Urgent'')
-- `catatan_teknisi`: Catatan dari teknisi
-- `created_at`, `updated_at`: Timestamps
-
-#### Tabel `ticket_logs`
-- `id`: Primary key
-- `ticket_id`: FK ke tickets
-- `user_id`: FK ke users (yang melakukan aksi)
-- `action`: Jenis aktivitas
-- `old_value`, `new_value`: Nilai sebelum/sesudah
-- `description`: Deskripsi aktivitas
-- `created_at`: Timestamp
-
-###  Customization
-
-#### Theme Colors
-Edit di setiap file dashboard untuk mengubah theme:
-```css
-/* Gradient Sidebar */
-background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
-
-/* Ganti dengan warna TVRI jika ada brand guideline */
-```
-
-#### Logo & Branding
-Tambahkan logo TVRI di bagian sidebar:
-```html
-<div class="text-center mb-4">
-    <img src="assets/img/logo-tvri.png" alt="TVRI" width="80">
-    <h5 class="mt-2">TVRI Ticketing</h5>
-</div>
-```
-
-###  Troubleshooting
-
-#### 1. Halaman Blank/Error
-- Pastikan XAMPP Apache & MySQL sudah running
-- Cek error di `C:\xampp\apache\logs\error.log`
-- Enable error reporting:
-  ```php
-  error_reporting(E_ALL);
-  ini_set(''display_errors'', 1);
-  ```
-
-#### 2. Login Gagal
-- Cek koneksi database di `config/koneksi.php`
-- Jalankan `scripts/reset_passwords.php` untuk reset password
-- Pastikan session berjalan (cek `php.ini` untuk `session.save_path`)
-
-#### 3. PDF Tidak Generate
-- Pastikan `fpdf/fpdf.php` exist dan readable
-- Cek permission folder (harus writable jika ada cache)
-- Test manual: `http://localhost/ticketing_tvri/cetak.php?id=1`
-
-#### 4. Log Tidak Tercatat
-- Pastikan tabel `ticket_logs` sudah dibuat
-- Cek `update_db_logs.sql` sudah diimport
-- Verify `config/logger.php` di-require di file proses
-
-###  Future Enhancements
-
-Fitur yang bisa ditambahkan:
-- [ ] DataTables untuk sorting & pagination advanced
-- [ ] Chart.js dashboard visualizations
-- [ ] Filter & pencarian tiket lanjutan
-- [ ] Email notification system
-- [ ] Upload attachment/foto masalah
-- [ ] Mobile responsive optimization
-- [ ] API REST untuk integrasi mobile app
-- [ ] Change password feature
-- [ ] User management (CRUD users)
-- [ ] Export Excel reports
-
-###  License & Credits
-
-**Dikembangkan untuk**: Proyek Akhir Magang TVRI  
-**Developer**: [Nama Anda]  
-**Tahun**: 2024  
-
-**Open Source Components:**
-- Bootstrap (MIT License)
-- FPDF (Freeware)
-- SweetAlert2 (MIT License)
-
-###  Support
-
-Untuk pertanyaan atau issue, silakan hubungi:
-- Email: [email@tvri.co.id]
-- Internal: [Nomor Ext.]
+> Untuk deployment port non-standar, akses `http://localhost:10080/ticketing_tvri`
+> (sesuaikan port Apache di `httpd.conf`)
 
 ---
-** 2024 TVRI - Televisi Republik Indonesia**
-=======
-# TVRI_Ticketing_System
->>>>>>> 6aff431cca2acc85656e77cda34fc409ca0e39f6
+
+## Akun Default
+
+| Role | Username | Password | Keterangan |
+|------|----------|----------|------------|
+| Admin | `admin` | `123456` | Administrator sistem |
+| User | `budi` | `123456` | Pelapor biasa |
+| Teknisi | `andi_it` | `123456` | Divisi IT |
+| Teknisi | `joko_listrik` | `123456` | Divisi Listrik |
+| Teknisi | `dedi_studio` | `123456` | Divisi Studio |
+
+> **PENTING**: Ganti semua password default sebelum digunakan di jaringan internal!  
+> Gunakan `scripts/reset_passwords.php` hanya di lingkungan development.
+
+---
+
+## Alur Kerja Sistem
+
+### User (Pelapor)
+```
+Login → Dashboard → Lapor Tiket Baru → Isi Form + Upload Foto → Submit
+→ Tiket masuk status "Open" → Menunggu Admin assign
+```
+
+### Admin
+```
+Login → Dashboard → Lihat Tiket Open → Klik Assign
+→ Pilih Divisi + Pilih Teknisi + Set Priority → Submit
+→ Status "Assigned" → Teknisi menerima notifikasi
+```
+
+### Teknisi
+```
+Login → Dashboard → Lihat Tiket Assigned
+→ Klik "Mulai" → Status "In Progress" → Kerjakan perbaikan
+→ Upload foto bukti → Klik "Selesai" + Isi Catatan → Status "Resolved"
+```
+
+---
+
+## Skema Database
+
+### `users`
+| Kolom | Tipe | Keterangan |
+|-------|------|-----------|
+| `id` | INT PK | |
+| `nama` | VARCHAR(100) | Nama lengkap |
+| `username` | VARCHAR(50) UNIQUE | |
+| `password` | VARCHAR(255) | bcrypt hash |
+| `email` | VARCHAR(100) NULL | Opsional |
+| `role` | ENUM('admin','user','teknisi') | |
+| `division_id` | INT FK | NULL untuk non-teknisi |
+| `profile_photo` | VARCHAR(255) NULL | Path foto profil |
+
+### `divisions`
+| Kolom | Tipe | Keterangan |
+|-------|------|-----------|
+| `id` | INT PK | |
+| `nama_divisi` | VARCHAR(100) | IT / Listrik / Studio |
+
+### `tickets`
+| Kolom | Tipe | Keterangan |
+|-------|------|-----------|
+| `id` | INT PK | |
+| `user_id` | INT FK | Pelapor |
+| `judul` | VARCHAR(255) | |
+| `lokasi` | VARCHAR(255) | |
+| `deskripsi` | TEXT | |
+| `foto_masalah` | VARCHAR(255) NULL | Lampiran foto tiket |
+| `assigned_division_id` | INT FK NULL | |
+| `handled_by` | INT FK NULL | ID teknisi yang menangani |
+| `status` | ENUM('Open','Assigned','In Progress','Resolved') | |
+| `priority` | ENUM('Low','Medium','High','Urgent') | |
+| `catatan_teknisi` | TEXT NULL | |
+| `foto_perbaikan` | VARCHAR(500) NULL | Foto bukti perbaikan |
+| `created_at` | DATETIME | |
+| `updated_at` | DATETIME | |
+
+### `ticket_logs`
+| Kolom | Tipe | Keterangan |
+|-------|------|-----------|
+| `id` | INT PK | |
+| `ticket_id` | INT FK NULL | NULL jika tiket dihapus |
+| `ticket_judul` | VARCHAR(255) NULL | Judul tiket (dipreservasi saat hapus) |
+| `ticket_id_orig` | INT NULL | ID asli tiket sebelum dihapus |
+| `user_id` | INT FK | Pelaku aksi |
+| `action` | VARCHAR(50) | create / assign / status_update / delete, dll. |
+| `old_value` | VARCHAR(255) NULL | |
+| `new_value` | VARCHAR(255) NULL | |
+| `description` | TEXT NULL | |
+| `created_at` | DATETIME | |
+
+> Kolom `ticket_judul` dan `ticket_id_orig` memungkinkan riwayat aktivitas tetap
+> tampil di halaman Activity Logs meskipun tiket sudah dihapus.
+
+---
+
+## Keamanan
+
+- Password di-hash dengan `password_hash()` (bcrypt)
+- Session-based auth dengan validasi IP address
+- RBAC: setiap halaman diproteksi sesuai role via `config/auth.php`
+- User input di-escape dengan `mysqli_real_escape_string()`
+- Folder `uploads/` dan `scripts/` diproteksi dengan `.htaccess`
+- File `.env` berisi kredensial — **jangan pernah di-commit ke Git**
+
+---
+
+## Troubleshooting
+
+### Halaman Blank / Error 500
+- Pastikan Apache & MySQL XAMPP sudah running
+- Cek `D:\xamp\apache\logs\error.log`
+- Aktifkan error reporting sementara di `config/bootstrap.php`
+
+### Login Gagal
+- Pastikan `.env` sudah dikonfigurasi dengan benar
+- Jalankan `scripts/reset_passwords.php` untuk reset password ke `123456`
+
+### PDF Tidak Generate
+- Pastikan `fpdf/fpdf.php` ada dan terbaca
+- Test: `http://localhost/ticketing_tvri/cetak.php?id=1`
+- Cek path logo di `cetak.php` sudah sesuai lokasi XAMPP
+
+### Log Tidak Tercatat
+- Pastikan `update_db_logs.sql` sudah diimport
+- Verifikasi kolom `ticket_judul` dan `ticket_id_orig` sudah ada di tabel `ticket_logs`
+- Cek `config/logger.php` di-require di file proses yang relevan
+
+---
+
+## Pengembangan Lanjutan
+
+Fitur yang dapat ditambahkan ke depan:
+- [ ] Export laporan ke Excel (PhpSpreadsheet)
+- [ ] DataTables dengan sorting & pagination server-side
+- [ ] REST API untuk integrasi aplikasi mobile
+- [ ] Dashboard chart interaktif (Chart.js)
+- [ ] Notifikasi email otomatis saat status tiket berubah
+- [ ] Two-factor authentication (2FA)
+
+---
+
+## Kredit
+
+**Dikembangkan untuk**: Proyek Akhir Magang — TVRI (Televisi Republik Indonesia)  
+**Tahun**: 2025–2026
+
+**Open Source Libraries:**
+- [Bootstrap](https://getbootstrap.com) — MIT License
+- [FPDF](http://www.fpdf.org) — Freeware
+- [SweetAlert2](https://sweetalert2.github.io) — MIT License
+- [PHPMailer](https://github.com/PHPMailer/PHPMailer) — LGPL 2.1
+
+---
+
+*© 2025–2026 TVRI — Televisi Republik Indonesia*

@@ -291,8 +291,8 @@ $today = str_replace(array_keys($months_id), array_values($months_id), $today);
         @media(max-width:992px){.stats-row{grid-template-columns:repeat(2,1fr)}.content-grid{grid-template-columns:1fr}.filters-row{flex-direction:column}.filter-group{min-width:100%}}
         @media(max-width:768px){
             .hamburger-menu{display:flex}
-            .sidebar{position:fixed!important;top:0;left:-100%!important;width:260px!important;height:100vh;z-index:999;transition:left .3s;overflow-y:auto}
-            .sidebar.active{left:0!important}
+            .sidebar{position:fixed!important;top:0;left:-100%!important;width:260px!important;height:var(--sidebar-h,100vh);z-index:999;transition:left .3s;overflow-y:auto;-webkit-overflow-scrolling:touch}
+            .sidebar.active{left:0!important}.sidebar-nav{flex:none!important}
             .main-content{margin-left:0;padding:56px 16px 20px}
             .top-bar{flex-direction:column;gap:6px;align-items:stretch;margin-bottom:16px}
             .top-bar-left{margin-top:-8px}
@@ -822,5 +822,6 @@ $today = str_replace(array_keys($months_id), array_values($months_id), $today);
 
     (function(){const h=document.getElementById('hamburgerBtn');const s=document.querySelector('.sidebar');const o=document.getElementById('sidebarOverlay');if(!h||!s||!o)return;h.addEventListener('click',function(){this.classList.toggle('active');s.classList.toggle('active');o.classList.toggle('active');document.body.style.overflow=s.classList.contains('active')?'hidden':'';});o.addEventListener('click',function(){h.classList.remove('active');s.classList.remove('active');this.classList.remove('active');document.body.style.overflow='';});document.querySelectorAll('.sidebar .nav-link, .sidebar a').forEach(function(link){link.addEventListener('click',function(){if(window.innerWidth<=768){h.classList.remove('active');s.classList.remove('active');o.classList.remove('active');document.body.style.overflow='';}});});})();
     </script>
+<script>!function(){function s(){document.documentElement.style.setProperty("--sidebar-h",window.innerHeight+"px")}s();window.addEventListener("resize",s);window.addEventListener("orientationchange",function(){setTimeout(s,150)})}();</script>
 </body>
 </html>

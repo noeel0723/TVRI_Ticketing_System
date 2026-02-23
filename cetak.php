@@ -181,6 +181,7 @@ class PDF extends FPDF
 }
 
 // ─── BUILD PDF ───────────────────────────────────────────────────────────────
+date_default_timezone_set('Asia/Makassar'); // WITA (UTC+8)
 $pdf = new PDF('P', 'mm', 'A4');
 $pdf->AliasNbPages();
 $pdf->print_date = date('d/m/Y H:i:s');

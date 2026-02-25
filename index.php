@@ -1,17 +1,28 @@
-﻿<?php
+<?php
 require_once __DIR__ . '/config/bootstrap.php';
 startSecureSession();
 
-if (isset($_SESSION['user_id'])) {
+// Cek session lengkap sebelum redirect
+if (isset($_SESSION['user_id']) && isset($_SESSION['role']) && !empty($_SESSION['role'])) {
     $role = $_SESSION['role'];
     if ($role == 'admin') {
         header('Location: admin/dashboard.php');
+        exit();
     } elseif ($role == 'user') {
         header('Location: user/dashboard.php');
+        exit();
     } elseif ($role == 'teknisi') {
         header('Location: teknisi/dashboard.php');
+        exit();
+    } else {
+        // Role tidak dikenal, bersihkan session
+        session_unset();
+        session_destroy();
     }
-    exit();
+} elseif (isset($_SESSION['user_id']) && !isset($_SESSION['role'])) {
+    // Session corrupt: user_id ada tapi role tidak ada
+    session_unset();
+    session_destroy();
 }
 
 $csrf = csrf_token();

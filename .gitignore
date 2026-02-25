@@ -1,0 +1,31 @@
+# Environment variables (JANGAN di-commit - berisi kredensial!)
+.env
+
+# Folder uploads (file user, bisa besar)
+uploads/tickets/*
+uploads/perbaikan/*
+uploads/resolved/*
+uploads/profile_photos/*
+!uploads/tickets/.gitkeep
+!uploads/perbaikan/.gitkeep
+!uploads/resolved/.gitkeep
+!uploads/profile_photos/.gitkeep
+
+# Logs
+logs/*.log
+logs/*.txt
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE files
+.vscode/
+.idea/
+*.suo
+*.user
+
+# Temporary files
+*.tmp
+*.temp

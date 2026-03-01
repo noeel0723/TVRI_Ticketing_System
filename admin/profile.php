@@ -91,7 +91,7 @@ $total_resolved = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as c F
         *{margin:0;padding:0;box-sizing:border-box}
         html{width:100%}
         body{font-family:'Inter',sans-serif;background:#f0f2f5}
-        .sidebar{background:#10367D;min-height:100vh;color:#fff;position:fixed;top:0;left:0;width:230px;z-index:100;display:flex;flex-direction:column}
+        .sidebar{background:#2196F3;min-height:100vh;color:#fff;position:fixed;top:0;left:0;width:230px;z-index:100;display:flex;flex-direction:column}
         .sidebar-brand{padding:20px 20px 16px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:12px}
         .sidebar-brand .brand-icon{width:36px;height:36px;background:rgba(255,255,255,.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem}
         .sidebar-brand h5{font-size:1rem;font-weight:700;margin:0;letter-spacing:-.3px}

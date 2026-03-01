@@ -49,7 +49,7 @@ $result_tickets = mysqli_query($conn, $query_tickets);
     <style>
         *{margin:0;padding:0;box-sizing:border-box}
         body{font-family:'Inter',sans-serif;background:#f0f2f5}
-        .sidebar{background:#2196F3;min-height:100vh;color:#fff;position:fixed;top:0;left:0;width:230px;z-index:100;display:flex;flex-direction:column}
+        .sidebar{background:#1565C0;min-height:100vh;color:#fff;position:fixed;top:0;left:0;width:230px;z-index:100;display:flex;flex-direction:column}
         .sidebar-brand{padding:16px 20px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;flex-direction:column;align-items:center;gap:8px}
         .sidebar-brand h5{font-size:1rem;font-weight:700;margin:0;letter-spacing:-.3px}
         .sidebar-brand small{display:block;font-size:.7rem;opacity:.5;margin-top:2px}

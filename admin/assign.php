@@ -85,7 +85,7 @@ $st = $st_config[$ticket['status']] ?? ['color'=>'#6b7280','bg'=>'#f3f4f6','labe
         body{font-family:'Inter',sans-serif;background:#eef1f8;font-size:14px;color:#1a1a2e}
 
         /* Sidebar - same as dashboard */
-        .sidebar{background:#2196F3;min-height:100vh;color:#fff;position:fixed;top:0;left:0;width:230px;z-index:100;display:flex;flex-direction:column}
+        .sidebar{background:#1565C0;min-height:100vh;color:#fff;position:fixed;top:0;left:0;width:230px;z-index:100;display:flex;flex-direction:column}
         .sidebar-brand{padding:16px 20px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;flex-direction:column;align-items:center;gap:8px}
 
         .sidebar-brand h5{font-size:1rem;font-weight:700;margin:0;letter-spacing:-.3px}

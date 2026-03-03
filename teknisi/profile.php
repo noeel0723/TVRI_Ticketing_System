@@ -86,6 +86,7 @@ $resolved_tickets = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as c
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
@@ -216,7 +217,7 @@ $resolved_tickets = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as c
     <nav class="sidebar">
         <div class="sidebar-brand">
             <img src="../assets/Logo_TVRI.svg.png" alt="TVRI Logo" style="height: 50px;">
-            <div style="text-align: center;"><h5>TVRI Ticketing</h5><small>Support System</small></div>
+            <div style="text-align: center;"><h5 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;letter-spacing:-.4px">MyTicketing</h5><small>Support System</small></div>
         </div>
         <div class="sidebar-nav">
             <a class="nav-link position-relative" href="dashboard.php"><i class="bi bi-grid-1x2"></i> Dashboard<?php if($assigned_count > 0): ?><span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary" style="font-size:0.7em"><?=$assigned_count?></span><?php endif; ?></a>

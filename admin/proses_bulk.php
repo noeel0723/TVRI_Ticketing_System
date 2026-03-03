@@ -60,21 +60,23 @@ if ($action === 'delete') {
     }
 
     while ($row = mysqli_fetch_assoc($result)) {
-        $tid = (int)$row['id'];
-        $judul = $row['judul'];
+        $tid   = (int)$row['id'];
+        $judul  = $row['judul'];
         $status = $row['status'];
-        // Log activity BEFORE deleting (to avoid foreign key constraint error)
-        logTicketActivity($conn, $tid, $user['id'], 'ticket_deleted', $status, 'Deleted', 'Bulk delete tiket #' . $tid . ': ' . $judul);
-        foreach ($relatedTables as $table) {
-            mysqli_query($conn, "DELETE FROM $table WHERE ticket_id = $tid");
-        }
 
         if ($role === 'admin') {
+            // Admin: hard delete + catat ke activity log
+            logTicketActivity($conn, $tid, $user['id'], 'ticket_deleted', $status, 'Deleted', 'Bulk delete tiket #' . $tid . ': ' . $judul);
+            foreach ($relatedTables as $table) {
+                mysqli_query($conn, "DELETE FROM $table WHERE ticket_id = $tid");
+            }
             $del = mysqli_query($conn, "DELETE FROM tickets WHERE id = $tid");
         } elseif ($role === 'user') {
-            $del = mysqli_query($conn, "DELETE FROM tickets WHERE id = $tid AND user_id = $user_id");
+            // User: soft delete saja, tidak masuk activity log
+            $del = mysqli_query($conn, "UPDATE tickets SET user_hidden = 1 WHERE id = $tid AND user_id = $user_id");
         } else {
-            $del = mysqli_query($conn, "DELETE FROM tickets WHERE id = $tid AND handled_by = $user_id");
+            // Teknisi: soft delete saja, tidak masuk activity log
+            $del = mysqli_query($conn, "UPDATE tickets SET user_hidden = 1 WHERE id = $tid AND handled_by = $user_id");
         }
 
         if ($del && mysqli_affected_rows($conn) > 0) {

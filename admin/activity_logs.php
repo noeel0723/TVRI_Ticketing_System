@@ -197,7 +197,7 @@ $months_label_id = ['','Januari','Februari','Maret','April','Mei','Juni',
         .ticket-cell{display:flex;flex-direction:column;gap:2px}
         .ticket-id{color:#10367D;font-weight:700;font-size:.82rem;text-decoration:none}
         .ticket-id:hover{text-decoration:underline}
-        .ticket-title{font-size:.76rem;color:#9ca3af;max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .ticket-title{font-size:.76rem;color:#9ca3af;max-width:200px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
         /* Status badge */
         .status-badge{display:inline-flex;align-items:center;gap:5px;font-size:.78rem;font-weight:600}
         .status-badge .status-icon{font-size:.7rem}
@@ -218,7 +218,7 @@ $months_label_id = ['','Januari','Februari','Maret','April','Mei','Juni',
         .p-teknisi{background:#f59e0b;color:#1a1a2e}
         .people-name{font-weight:600;color:#1a1a2e;font-size:.84rem}
         /* Description */
-        .desc-text{font-size:.82rem;color:#6b7280;max-width:260px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .desc-text{font-size:.82rem;color:#6b7280;max-width:260px;display:inline-block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;vertical-align:middle}
         /* Pagination */
         .pagination-bar{display:flex;justify-content:space-between;align-items:center;padding:16px 24px;border-top:1px solid #eef0f5;flex-wrap:wrap;gap:10px}
         .pag-info{font-size:.8rem;color:#8b8fa3}

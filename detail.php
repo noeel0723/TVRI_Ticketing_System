@@ -130,7 +130,7 @@ $pr = !empty($ticket['priority']) ? ($pr_config[$ticket['priority']] ?? ['color'
         /* Description Box */
         .desc-box{background:#f8f9fc;border:1px solid #e2e5eb;border-radius:10px;padding:20px;margin-bottom:24px}
         .desc-box h4{font-size:.88rem;font-weight:700;color:#1a1a2e;margin-bottom:10px}
-        .desc-box p{font-size:.84rem;color:#4a4a4a;line-height:1.7;margin:0;white-space:pre-wrap}
+        .desc-box p{font-size:.84rem;color:#4a4a4a;line-height:1.7;margin:0;white-space:pre-wrap;word-break:break-word;overflow-wrap:anywhere}
 
         /* Attachment */
         .attach-section{margin-bottom:24px;max-width:520px}

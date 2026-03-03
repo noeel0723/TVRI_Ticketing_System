@@ -31,11 +31,67 @@ $resolution_rate = $total_tickets > 0 ? round(($resolved_tickets / $total_ticket
 // For badge notification
 $open_count = $open_tickets;
 
-// Top Teknisi - most resolved tickets
+// ------------------------------------------------
+// Auto-snapshot top teknisi bulanan
+// Setiap kali admin membuka dashboard, cek apakah
+// bulan-bulan sebelumnya sudah di-snapshot. Jika
+// belum, ambil data dan simpan ke monthly_top_teknisi.
+// ------------------------------------------------
+function snapshotMonthlyTopTeknisi($conn) {
+    $current_month = (int)date('n');
+    $current_year  = (int)date('Y');
+
+    // Mundur hingga 24 bulan, snapshot yang belum ada
+    for ($i = 1; $i <= 24; $i++) {
+        $ts = mktime(0, 0, 0, $current_month - $i, 1, $current_year);
+        $m  = (int)date('n', $ts);
+        $y  = (int)date('Y', $ts);
+
+        // Sudah ada? lewati
+        $chk = mysqli_fetch_assoc(mysqli_query($conn,
+            "SELECT COUNT(*) AS c FROM monthly_top_teknisi WHERE bulan = $m AND tahun = $y"));
+        if ($chk['c'] > 0) continue;
+
+        // Ambil top 5 teknisi untuk bulan tersebut
+        $res = mysqli_query($conn,
+            "SELECT u.id, u.nama, u.foto, COUNT(t.id) AS resolved_count
+             FROM users u
+             INNER JOIN tickets t
+                 ON t.handled_by = u.id
+                AND t.status = 'Resolved'
+                AND MONTH(t.updated_at) = $m
+                AND YEAR(t.updated_at)  = $y
+             WHERE u.role = 'teknisi'
+             GROUP BY u.id, u.nama, u.foto
+             ORDER BY resolved_count DESC
+             LIMIT 5");
+
+        $rank = 1;
+        while ($row = mysqli_fetch_assoc($res)) {
+            $tid   = (int)$row['id'];
+            $tname = mysqli_real_escape_string($conn, $row['nama']);
+            $tfoto = mysqli_real_escape_string($conn, $row['foto'] ?? '');
+            $rc    = (int)$row['resolved_count'];
+            mysqli_query($conn,
+                "INSERT IGNORE INTO monthly_top_teknisi
+                     (teknisi_id, teknisi_nama, teknisi_foto, bulan, tahun, rank_position, resolved_count)
+                 VALUES ($tid, '$tname', '$tfoto', $m, $y, $rank, $rc)");
+            $rank++;
+        }
+    }
+}
+snapshotMonthlyTopTeknisi($conn);
+
+// Top Teknisi bulan ini (direset setiap awal bulan)
+$cur_month = (int)date('n');
+$cur_year  = (int)date('Y');
 $query_top_teknisi = "SELECT u.id, u.nama, u.foto, COUNT(t.id) as resolved_count,
     (SELECT COUNT(*) FROM tickets t2 WHERE t2.handled_by = u.id AND t2.status IN ('Assigned','In Progress')) as active_count
     FROM users u
-    INNER JOIN tickets t ON t.handled_by = u.id AND t.status = 'Resolved'
+    INNER JOIN tickets t ON t.handled_by = u.id
+        AND t.status = 'Resolved'
+        AND MONTH(t.updated_at) = $cur_month
+        AND YEAR(t.updated_at)  = $cur_year
     WHERE u.role = 'teknisi'
     GROUP BY u.id, u.nama, u.foto
     ORDER BY resolved_count DESC
@@ -47,6 +103,10 @@ if ($result_top_teknisi) {
         $top_teknisi[] = $tk;
     }
 }
+
+$months_label = ['','Januari','Februari','Maret','April','Mei','Juni',
+                 'Juli','Agustus','September','Oktober','November','Desember'];
+$top_teknisi_period = $months_label[$cur_month] . ' ' . $cur_year;
 
 // Get divisions for filters and bulk assign
 $divisions_result = mysqli_query($conn, "SELECT id, nama_divisi FROM divisions ORDER BY nama_divisi");
@@ -434,7 +494,7 @@ $today = str_replace(array_keys($months_id), array_values($months_id), $today);
                 <div class="chart-container"><canvas id="monthlyChart"></canvas></div>
             </div>
             <div class="top-teknisi-card">
-                <h3><i class="bi bi-trophy-fill"></i> Top Teknisi</h3>
+                <h3><i class="bi bi-trophy-fill"></i> Top Teknisi <small style="font-size:.72rem;font-weight:500;opacity:.65;margin-left:6px"><?= htmlspecialchars($top_teknisi_period) ?></small></h3>
                 <?php if(count($top_teknisi) > 0): ?>
                 <div class="teknisi-list">
                     <?php foreach($top_teknisi as $idx => $tk):
@@ -459,7 +519,7 @@ $today = str_replace(array_keys($months_id), array_values($months_id), $today);
                     <?php endforeach; ?>
                 </div>
                 <?php else: ?>
-                <div class="empty-teknisi"><i class="bi bi-trophy"></i><p>Belum ada data teknisi.</p></div>
+                <div class="empty-teknisi"><i class="bi bi-trophy"></i><p>Belum ada tiket resolved bulan ini.</p></div>
                 <?php endif; ?>
             </div>
         </div>

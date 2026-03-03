@@ -99,6 +99,23 @@ function qs($overrides = []) {
     unset($params['page']); // reset page on filter change unless explicitly set
     return http_build_query($params);
 }
+
+// --- Top Teknisi Bulanan view ---
+$view = isset($_GET['view']) ? $_GET['view'] : 'logs';
+
+$monthly_data = []; // [year][month] => array of top teknisi rows
+if ($view === 'top_teknisi') {
+    $mth_res = mysqli_query($conn,
+        "SELECT * FROM monthly_top_teknisi
+         ORDER BY tahun DESC, bulan DESC, rank_position ASC
+         LIMIT 500");
+    while ($mrow = mysqli_fetch_assoc($mth_res)) {
+        $monthly_data[$mrow['tahun']][$mrow['bulan']][] = $mrow;
+    }
+}
+
+$months_label_id = ['','Januari','Februari','Maret','April','Mei','Juni',
+                    'Juli','Agustus','September','Oktober','November','Desember'];
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -252,6 +269,30 @@ function qs($overrides = []) {
         @media(min-width:992px){
             .table-card{overflow-x:auto}
         }
+        /* Monthly Top Teknisi */
+        .month-group{margin-bottom:28px}
+        .month-heading{font-size:.95rem;font-weight:700;color:#1a1a2e;margin:0 0 14px;display:flex;align-items:center;gap:8px;padding-bottom:10px;border-bottom:2px solid #e8eaef}
+        .month-heading i{color:#d97706}
+        .month-heading .month-badge{background:linear-gradient(135deg,#10367D,#1a4fa0);color:#fff;font-size:.72rem;font-weight:600;padding:3px 10px;border-radius:20px;margin-left:auto}
+        .teknisi-monthly-grid{display:flex;flex-direction:column;gap:8px}
+        .teknisi-monthly-item{display:flex;align-items:center;gap:12px;padding:12px 16px;background:#fafbfd;border:1px solid #eef0f5;border-radius:12px;transition:all .15s}
+        .teknisi-monthly-item:hover{background:#f0f4ff;border-color:#c7d7f9}
+        .tm-rank{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:800;flex-shrink:0}
+        .tm-rank-1{background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#fff;box-shadow:0 2px 8px rgba(245,158,11,.35)}
+        .tm-rank-2{background:linear-gradient(135deg,#d1d5db,#9ca3af);color:#fff}
+        .tm-rank-3{background:linear-gradient(135deg,#f97316,#ea580c);color:#fff}
+        .tm-rank-other{background:#f3f4f6;color:#6b7280}
+        .tm-avatar{width:38px;height:38px;border-radius:10px;overflow:hidden;flex-shrink:0;background:linear-gradient(135deg,#10367D,#1a4fa0);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.85rem}
+        .tm-avatar img{width:100%;height:100%;object-fit:cover}
+        .tm-info{flex:1;min-width:0}
+        .tm-name{font-size:.88rem;font-weight:600;color:#1a1a2e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .tm-sub{font-size:.74rem;color:#8b8fa3;margin-top:2px}
+        .tm-count{font-size:1.1rem;font-weight:800;color:#16a34a;white-space:nowrap}
+        .tm-count small{font-size:.68rem;font-weight:500;color:#8b8fa3;display:block;text-align:right}
+        .top-tek-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px}
+        .top-tek-empty{text-align:center;padding:60px 20px;color:#9ca3af}
+        .top-tek-empty i{font-size:3rem;display:block;margin-bottom:12px;color:#d1d5db}
+        .top-tek-empty p{font-size:.88rem;margin:0}
 /* Mobile Hamburger Menu */
         .hamburger-menu{display:none;position:fixed;top:20px;left:20px;z-index:1100;background:#fff;border:none;width:44px;height:44px;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,.1);cursor:pointer;padding:10px;flex-direction:column;justify-content:space-around;transition:all .3s}
         .hamburger-menu span{display:block;width:100%;height:3px;background:#10367D;border-radius:2px;transition:all .3s}
@@ -304,6 +345,7 @@ function qs($overrides = []) {
 
         <!-- Filter bar -->
         <div class="filter-bar">
+            <?php if($view !== 'top_teknisi'): ?>
             <!-- Date range -->
             <div class="date-pill">
                 <i class="bi bi-calendar3"></i>
@@ -311,27 +353,34 @@ function qs($overrides = []) {
                 <span style="color:#c0c4cc">-</span>
                 <input type="date" id="dateTo" value="<?= htmlspecialchars($date_to) ?>" title="Sampai tanggal">
             </div>
+            <?php else: ?>
+            <div id="dateFrom" style="display:none"></div><div id="dateTo" style="display:none"></div>
+            <?php endif; ?>
 
             <!-- Tab pills -->
             <div class="tab-pills">
-                <a class="tab-pill <?= empty($filter_action) ? 'active' : '' ?>" href="?<?= qs(['action'=>null]) ?>">
+                <a class="tab-pill <?= empty($filter_action) && $view!='top_teknisi' ? 'active' : '' ?>" href="?<?= qs(['action'=>null,'view'=>null]) ?>">
                     All <span class="cnt"><?= $cnt_all ?></span>
                 </a>
-                <a class="tab-pill <?= $filter_action=='create' ? 'active' : '' ?>" href="?<?= qs(['action'=>'create']) ?>">
+                <a class="tab-pill <?= $filter_action=='create' ? 'active' : '' ?>" href="?<?= qs(['action'=>'create','view'=>null]) ?>">
                     <i class="bi bi-plus-circle" style="font-size:.8rem"></i> Created <span class="cnt"><?= $cnt_create ?></span>
                 </a>
-                <a class="tab-pill <?= $filter_action=='assign' ? 'active' : '' ?>" href="?<?= qs(['action'=>'assign']) ?>">
+                <a class="tab-pill <?= $filter_action=='assign' ? 'active' : '' ?>" href="?<?= qs(['action'=>'assign','view'=>null]) ?>">
                     <i class="bi bi-person-check" style="font-size:.8rem"></i> Assigned <span class="cnt"><?= $cnt_assign ?></span>
                 </a>
-                <a class="tab-pill <?= $filter_action=='status_update' ? 'active' : '' ?>" href="?<?= qs(['action'=>'status_update']) ?>">
+                <a class="tab-pill <?= $filter_action=='status_update' ? 'active' : '' ?>" href="?<?= qs(['action'=>'status_update','view'=>null]) ?>">
                     <i class="bi bi-arrow-repeat" style="font-size:.8rem"></i> Updated <span class="cnt"><?= $cnt_status ?></span>
                 </a>
-                <a class="tab-pill <?= $filter_action=='ticket_deleted' ? 'active' : '' ?>" href="?<?= qs(['action'=>'ticket_deleted']) ?>">
+                <a class="tab-pill <?= $filter_action=='ticket_deleted' ? 'active' : '' ?>" href="?<?= qs(['action'=>'ticket_deleted','view'=>null]) ?>">
                     <i class="bi bi-trash3" style="font-size:.8rem"></i> Deleted <span class="cnt"><?= $cnt_deleted ?></span>
+                </a>
+                <a class="tab-pill <?= $view=='top_teknisi' ? 'active' : '' ?>" href="?view=top_teknisi" style="border-left:2px solid #e2e5eb">
+                    <i class="bi bi-trophy-fill" style="font-size:.8rem;color:<?= $view=='top_teknisi' ? '#fff' : '#d97706' ?>"></i> Top Teknisi Bulanan
                 </a>
             </div>
 
             <!-- User filter -->
+            <?php if($view !== 'top_teknisi'): ?>
             <div class="user-filter">
                 <select id="userFilter" onchange="applyUserFilter(this.value)">
                     <option value="0">Semua User</option>
@@ -344,8 +393,71 @@ function qs($overrides = []) {
             <?php if(!empty($filter_action) || $filter_user > 0 || !empty($search) || !empty($date_from) || !empty($date_to)): ?>
             <a class="clear-btn" href="activity_logs.php"><i class="bi bi-x-lg"></i> Clear</a>
             <?php endif; ?>
+            <?php endif; ?>
         </div>
 
+        <!-- Table / Monthly View -->
+        <?php if($view === 'top_teknisi'): ?>
+        <!-- ====== Monthly Top Teknisi History ====== -->
+        <div style="margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+            <div>
+                <h2 style="font-size:1.1rem;font-weight:700;color:#1a1a2e;margin:0 0 4px;display:flex;align-items:center;gap:8px">
+                    <i class="bi bi-trophy-fill" style="color:#d97706"></i> Riwayat Top Teknisi Bulanan
+                </h2>
+                <p style="font-size:.82rem;color:#8b8fa3;margin:0">Snapshot otomatis 5 besar teknisi dengan tiket resolved terbanyak setiap bulan.</p>
+            </div>
+            <a href="activity_logs.php" class="clear-btn"><i class="bi bi-arrow-left"></i> Kembali ke Logs</a>
+        </div>
+
+        <?php if(empty($monthly_data)): ?>
+        <div class="table-card top-tek-empty">
+            <i class="bi bi-trophy"></i>
+            <p>Belum ada data top teknisi bulanan.<br><small>Data akan muncul otomatis setelah bulan pertama berakhir.</small></p>
+        </div>
+        <?php else: ?>
+        <div class="top-tek-grid">
+        <?php foreach($monthly_data as $yr => $months): ?>
+            <?php foreach($months as $mon => $rows): ?>
+            <div class="table-card month-group" style="padding:20px">
+                <div class="month-heading">
+                    <i class="bi bi-calendar3-fill"></i>
+                    <?= htmlspecialchars($months_label_id[$mon]) ?> <?= $yr ?>
+                    <span class="month-badge"><?= count($rows) ?> teknisi</span>
+                </div>
+                <div class="teknisi-monthly-grid">
+                <?php foreach($rows as $tr):
+                    $rk = (int)$tr['rank_position'];
+                    $rkClass = $rk <= 3 ? "tm-rank-$rk" : 'tm-rank-other';
+                    $initial = strtoupper(substr($tr['teknisi_nama'], 0, 1));
+                ?>
+                    <div class="teknisi-monthly-item">
+                        <span class="tm-rank <?= $rkClass ?>"><?= $rk ?></span>
+                        <div class="tm-avatar">
+                            <?php if(!empty($tr['teknisi_foto'])): ?>
+                                <img src="../uploads/profile_photos/<?= htmlspecialchars($tr['teknisi_foto']) ?>" alt="">
+                            <?php else: ?>
+                                <?= $initial ?>
+                            <?php endif; ?>
+                        </div>
+                        <div class="tm-info">
+                            <div class="tm-name"><?= htmlspecialchars($tr['teknisi_nama']) ?></div>
+                            <div class="tm-sub">Teknisi &bull; Snapshot <?= date('d/m/Y', strtotime($tr['snapshotted_at'])) ?></div>
+                        </div>
+                        <div class="tm-count">
+                            <?= $tr['resolved_count'] ?>
+                            <small>resolved</small>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+                </div>
+            </div>
+            <?php endforeach; ?>
+        <?php endforeach; ?>
+        </div>
+        <?php endif; ?>
+
+        <?php else: ?>
+        <!-- ====== Normal Activity Logs Table ====== -->
         <!-- Table -->
         <div class="table-card">
             <?php if(mysqli_num_rows($logs_result) > 0): ?>
@@ -478,6 +590,7 @@ function qs($overrides = []) {
             </div>
             <?php endif; ?>
         </div>
+        <?php endif; // end else (normal logs view) ?>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

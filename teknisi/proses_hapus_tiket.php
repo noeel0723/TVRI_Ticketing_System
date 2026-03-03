@@ -44,22 +44,18 @@ if ($ticket['status'] !== 'Resolved') {
     exit();
 }
 
-// Catat log SEBELUM menghapus tiket agar history tetap tersimpan
-// ticket_id pada log akan di-SET NULL otomatis oleh FK setelah tiket dihapus
-logTicketActivity($conn, $ticket_id, $user['id'], 'ticket_deleted', $ticket['status'], 'Deleted', 'Tiket #' . $ticket_id . ' "' . $ticket['judul'] . '" dihapus oleh teknisi');
-
-// Hapus tiket (ticket_logs TIDAK dihapus — FK ON DELETE SET NULL menjaga history)
-$delete_stmt = mysqli_prepare($conn, 'DELETE FROM tickets WHERE id = ?');
-if (!$delete_stmt) {
+// Soft delete: tiket disembunyikan dari tampilan teknisi, data tetap ada untuk admin
+$hide_stmt = mysqli_prepare($conn, 'UPDATE tickets SET user_hidden = 1 WHERE id = ?');
+if (!$hide_stmt) {
     header('Location: dashboard.php?error=db');
     exit();
 }
-mysqli_stmt_bind_param($delete_stmt, 'i', $ticket_id);
-if (mysqli_stmt_execute($delete_stmt)) {
-    mysqli_stmt_close($delete_stmt);
+mysqli_stmt_bind_param($hide_stmt, 'i', $ticket_id);
+if (mysqli_stmt_execute($hide_stmt)) {
+    mysqli_stmt_close($hide_stmt);
     header('Location: dashboard.php?success=deleted');
 } else {
-    mysqli_stmt_close($delete_stmt);
+    mysqli_stmt_close($hide_stmt);
     header('Location: dashboard.php?error=delete_failed');
 }
 exit();

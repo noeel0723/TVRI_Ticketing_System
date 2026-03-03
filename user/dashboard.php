@@ -13,7 +13,7 @@ $_foto_d = mysqli_fetch_assoc($_foto_r);
 mysqli_stmt_close($_foto_q);
 $_user_photo = !empty($_foto_d['foto']) ? '../uploads/profile_photos/' . $_foto_d['foto'] : '';
 
-$active_query = "SELECT COUNT(*) as total FROM tickets WHERE user_id = ? AND (status = 'Assigned' OR status = 'In Progress')";
+$active_query = "SELECT COUNT(*) as total FROM tickets WHERE user_id = ? AND user_hidden = 0 AND (status = 'Assigned' OR status = 'In Progress')";
 $stmt = mysqli_prepare($conn, $active_query);
 mysqli_stmt_bind_param($stmt, "i", $user['id']);
 mysqli_stmt_execute($stmt);
@@ -22,10 +22,10 @@ $active_count = mysqli_fetch_assoc($result)['total'];
 mysqli_stmt_close($stmt);
 
 $user_id = $user['id'];
-$query_total = "SELECT COUNT(*) as total FROM tickets WHERE user_id = $user_id";
-$query_open = "SELECT COUNT(*) as total FROM tickets WHERE user_id = $user_id AND status = 'Open'";
-$query_progress = "SELECT COUNT(*) as total FROM tickets WHERE user_id = $user_id AND status IN ('Assigned', 'In Progress')";
-$query_resolved = "SELECT COUNT(*) as total FROM tickets WHERE user_id = $user_id AND status = 'Resolved'";
+$query_total = "SELECT COUNT(*) as total FROM tickets WHERE user_id = $user_id AND user_hidden = 0";
+$query_open = "SELECT COUNT(*) as total FROM tickets WHERE user_id = $user_id AND user_hidden = 0 AND status = 'Open'";
+$query_progress = "SELECT COUNT(*) as total FROM tickets WHERE user_id = $user_id AND user_hidden = 0 AND status IN ('Assigned', 'In Progress')";
+$query_resolved = "SELECT COUNT(*) as total FROM tickets WHERE user_id = $user_id AND user_hidden = 0 AND status = 'Resolved'";
 
 $total_tickets = mysqli_fetch_assoc(mysqli_query($conn, $query_total))['total'];
 $open_tickets = mysqli_fetch_assoc(mysqli_query($conn, $query_open))['total'];
@@ -37,7 +37,7 @@ $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
 $offset = ($page - 1) * $limit;
 $total_pages = ceil($total_tickets / $limit);
 
-$query_tickets = "SELECT t.*, d.nama_divisi, u.foto as pelapor_foto, TIMESTAMPDIFF(SECOND, t.updated_at, NOW()) as seconds_ago FROM tickets t LEFT JOIN divisions d ON t.assigned_division_id = d.id LEFT JOIN users u ON t.user_id = u.id WHERE t.user_id = $user_id ORDER BY t.created_at DESC LIMIT $limit OFFSET $offset";
+$query_tickets = "SELECT t.*, d.nama_divisi, u.foto as pelapor_foto, TIMESTAMPDIFF(SECOND, t.updated_at, NOW()) as seconds_ago FROM tickets t LEFT JOIN divisions d ON t.assigned_division_id = d.id LEFT JOIN users u ON t.user_id = u.id WHERE t.user_id = $user_id AND t.user_hidden = 0 ORDER BY t.created_at DESC LIMIT $limit OFFSET $offset";
 $result_tickets = mysqli_query($conn, $query_tickets);
 ?>
 <!DOCTYPE html>
@@ -150,7 +150,7 @@ $result_tickets = mysqli_query($conn, $query_tickets);
         .toast-notif .toast-msg{font-size:.78rem;color:#8b8fa3}
         .toast-notif .toast-close{background:none;border:none;color:#8b8fa3;cursor:pointer;font-size:1rem;padding:0;margin-left:8px}
         @keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
-        .hero-banner{background:linear-gradient(135deg,#10367D 0%,#1a4fa0 60%,#2563eb 100%);border-radius:20px;padding:40px;display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;position:relative;overflow:hidden;min-height:180px}
+        .hero-banner{background:linear-gradient(135deg,#10367D 0%,#1a4fa0 60%,#2563eb 100%);border-radius:20px;padding:36px 40px;display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;position:relative;overflow:hidden;min-height:160px}
         .hero-banner::before{content:'';position:absolute;top:-50%;right:-10%;width:300px;height:300px;background:rgba(255,255,255,.06);border-radius:50%}
         .hero-banner::after{content:'';position:absolute;bottom:-40%;left:20%;width:250px;height:250px;background:rgba(255,255,255,.04);border-radius:50%}
         .hero-content{position:relative;z-index:1;flex:1}

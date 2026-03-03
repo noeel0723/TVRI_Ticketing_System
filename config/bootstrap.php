@@ -1,4 +1,6 @@
 <?php
+date_default_timezone_set('Asia/Makassar');
+
 function startSecureSession() {
     if (session_status() === PHP_SESSION_ACTIVE) {
         return;

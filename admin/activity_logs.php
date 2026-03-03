@@ -404,7 +404,7 @@ $months_label_id = ['','Januari','Februari','Maret','April','Mei','Juni',
                 <h2 style="font-size:1.1rem;font-weight:700;color:#1a1a2e;margin:0 0 4px;display:flex;align-items:center;gap:8px">
                     <i class="bi bi-trophy-fill" style="color:#d97706"></i> Riwayat Top Teknisi Bulanan
                 </h2>
-                <p style="font-size:.82rem;color:#8b8fa3;margin:0">Snapshot otomatis 5 besar teknisi dengan tiket resolved terbanyak setiap bulan.</p>
+                <p style="font-size:.82rem;color:#8b8fa3;margin:0">Histori 5 besar teknisi dengan tiket resolved terbanyak setiap bulan.</p>
             </div>
             <a href="activity_logs.php" class="clear-btn"><i class="bi bi-arrow-left"></i> Kembali ke Logs</a>
         </div>
@@ -441,7 +441,7 @@ $months_label_id = ['','Januari','Februari','Maret','April','Mei','Juni',
                         </div>
                         <div class="tm-info">
                             <div class="tm-name"><?= htmlspecialchars($tr['teknisi_nama']) ?></div>
-                            <div class="tm-sub">Teknisi &bull; Snapshot <?= date('d/m/Y', strtotime($tr['snapshotted_at'])) ?></div>
+                            <div class="tm-sub">Teknisi &bull;  <?= date('d/m/Y', strtotime($tr['snapshotted_at'])) ?></div>
                         </div>
                         <div class="tm-count">
                             <?= $tr['resolved_count'] ?>

@@ -32,4 +32,5 @@ if (!$conn) {
     die("Koneksi database gagal.");
 }
 mysqli_set_charset($conn, 'utf8');
+mysqli_query($conn, "SET time_zone = '+07:00'");
 ?>

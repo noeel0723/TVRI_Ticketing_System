@@ -294,6 +294,9 @@ $months_label_id = ['','Januari','Februari','Maret','April','Mei','Juni',
         .top-tek-empty{text-align:center;padding:60px 20px;color:#9ca3af}
         .top-tek-empty i{font-size:3rem;display:block;margin-bottom:12px;color:#d1d5db}
         .top-tek-empty p{font-size:.88rem;margin:0}
+        .back-btn-desktop{display:none}
+        .back-btn-mobile{display:inline-flex}
+        @media(min-width:992px){.back-btn-desktop{display:inline-flex}.back-btn-mobile{display:none}}
 /* Mobile Hamburger Menu */
         .hamburger-menu{display:none;position:fixed;top:20px;left:20px;z-index:1100;background:#fff;border:none;width:44px;height:44px;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,.1);cursor:pointer;padding:10px;flex-direction:column;justify-content:space-around;transition:all .3s}
         .hamburger-menu span{display:block;width:100%;height:3px;background:#10367D;border-radius:2px;transition:all .3s}
@@ -333,6 +336,10 @@ $months_label_id = ['','Januari','Februari','Maret','April','Mei','Juni',
         <!-- Title row -->
         <div class="page-title-row">
             <h1 class="page-title"><i class="bi bi-clock-history" style="margin-right:8px"></i>Activities</h1>
+            <div style="display:flex;align-items:center;gap:8px">
+            <?php if($view === 'top_teknisi'): ?>
+            <a href="activity_logs.php" class="clear-btn back-btn-desktop"><i class="bi bi-arrow-left"></i> Kembali ke Logs</a>
+            <?php endif; ?>
             <form method="GET" id="searchForm" class="search-box">
                 <!-- preserve existing filters -->
                 <?php if(!empty($filter_action)): ?><input type="hidden" name="action" value="<?= htmlspecialchars($filter_action) ?>"><?php endif; ?>
@@ -342,11 +349,11 @@ $months_label_id = ['','Januari','Februari','Maret','April','Mei','Juni',
                 <i class="bi bi-search"></i>
                 <input type="text" name="search" placeholder="Cari aktivitas..." value="<?= htmlspecialchars($search) ?>">
             </form>
+            </div>
         </div>
 
         <!-- Filter bar -->
         <div class="filter-bar">
-            <?php if($view !== 'top_teknisi'): ?>
             <!-- Date range -->
             <div class="date-pill">
                 <i class="bi bi-calendar3"></i>
@@ -354,9 +361,6 @@ $months_label_id = ['','Januari','Februari','Maret','April','Mei','Juni',
                 <span style="color:#c0c4cc">-</span>
                 <input type="date" id="dateTo" value="<?= htmlspecialchars($date_to) ?>" title="Sampai tanggal">
             </div>
-            <?php else: ?>
-            <div id="dateFrom" style="display:none"></div><div id="dateTo" style="display:none"></div>
-            <?php endif; ?>
 
             <!-- Tab pills -->
             <div class="tab-pills">
@@ -375,7 +379,7 @@ $months_label_id = ['','Januari','Februari','Maret','April','Mei','Juni',
                 <a class="tab-pill <?= $filter_action=='ticket_deleted' ? 'active' : '' ?>" href="?<?= qs(['action'=>'ticket_deleted','view'=>null]) ?>">
                     <i class="bi bi-trash3" style="font-size:.8rem"></i> Deleted <span class="cnt"><?= $cnt_deleted ?></span>
                 </a>
-                <a class="tab-pill <?= $view=='top_teknisi' ? 'active' : '' ?>" href="?view=top_teknisi" style="border-left:2px solid #e2e5eb">
+                <a class="tab-pill <?= $view=='top_teknisi' ? 'active' : '' ?>" href="?view=top_teknisi">
                     <i class="bi bi-trophy-fill" style="font-size:.8rem;color:<?= $view=='top_teknisi' ? '#fff' : '#d97706' ?>"></i> Top Teknisi Bulanan
                 </a>
             </div>
@@ -407,7 +411,7 @@ $months_label_id = ['','Januari','Februari','Maret','April','Mei','Juni',
                 </h2>
                 <p style="font-size:.82rem;color:#8b8fa3;margin:0">Histori 5 besar teknisi dengan tiket resolved terbanyak setiap bulan.</p>
             </div>
-            <a href="activity_logs.php" class="clear-btn"><i class="bi bi-arrow-left"></i> Kembali ke Logs</a>
+            <a href="activity_logs.php" class="clear-btn back-btn-mobile"><i class="bi bi-arrow-left"></i> Kembali ke Logs</a>
         </div>
 
         <?php if(empty($monthly_data)): ?>

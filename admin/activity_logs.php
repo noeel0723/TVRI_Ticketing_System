@@ -106,10 +106,13 @@ $view = isset($_GET['view']) ? $_GET['view'] : 'logs';
 $monthly_data = []; // [year][month] => array of top teknisi rows
 if ($view === 'top_teknisi') {
     $mth_res = mysqli_query($conn,
-        "SELECT * FROM monthly_top_teknisi
-         ORDER BY tahun DESC, bulan DESC, rank_position ASC
+        "SELECT mtt.*, COALESCE(u.foto, mtt.teknisi_foto) AS teknisi_foto_current
+         FROM monthly_top_teknisi mtt
+         LEFT JOIN users u ON mtt.teknisi_id = u.id
+         ORDER BY mtt.tahun DESC, mtt.bulan DESC, mtt.rank_position ASC
          LIMIT 500");
     while ($mrow = mysqli_fetch_assoc($mth_res)) {
+        $mrow['teknisi_foto'] = $mrow['teknisi_foto_current'];
         $monthly_data[$mrow['tahun']][$mrow['bulan']][] = $mrow;
     }
 }
